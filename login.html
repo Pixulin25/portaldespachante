@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Despachante — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0B1F3A;
+      --blue:   #1A4A8A;
+      --sky:    #2E86DE;
+      --accent: #F4A733;
+      --light:  #EEF4FF;
+      --white:  #FFFFFF;
+      --gray:   #6B7A99;
+      --text:   #1C2B40;
+      --border: #D6E0F0;
+      --error:  #E03D3D;
+      --success:#27AE60;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--navy) 0%, #142d5e 60%, #1A4A8A 100%);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* LOGO TOPO */
+    .top-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.5rem;
+      color: var(--white); margin-bottom: 1.8rem;
+      text-decoration: none; letter-spacing: -.5px;
+    }
+    .top-logo span { color: var(--accent); }
+
+    /* CARD */
+    .card {
+      background: var(--white);
+      border-radius: 18px;
+      width: 100%; max-width: 440px;
+      padding: 2.4rem 2.2rem;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    }
+
+    /* TABS */
+    .tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      background: var(--light); border-radius: 10px;
+      padding: 4px; margin-bottom: 2rem;
+    }
+    .tab {
+      padding: .65rem; text-align: center;
+      font-size: .92rem; font-weight: 600;
+      color: var(--gray); cursor: pointer;
+      border-radius: 8px; transition: all .2s;
+      border: none; background: none; font-family: 'Inter', sans-serif;
+    }
+    .tab.active {
+      background: var(--white); color: var(--navy);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* SOCIAL BUTTONS */
+    .social-btns { display: flex; flex-direction: column; gap: .75rem; margin-bottom: 1.5rem; }
+    .social-btn {
+      display: flex; align-items: center; justify-content: center; gap: .75rem;
+      padding: .75rem 1rem; border-radius: 9px; border: 1.5px solid var(--border);
+      font-size: .93rem; font-weight: 600; cursor: pointer;
+      background: var(--white); color: var(--text);
+      transition: background .15s, border-color .15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .social-btn:hover { background: var(--light); border-color: var(--sky); }
+    .social-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .social-btn.whatsapp { border-color: #25D366; color: #128C7E; }
+    .social-btn.whatsapp:hover { background: #f0fff4; }
+
+    /* DIVIDER */
+    .divider {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.5rem; color: var(--gray); font-size: .83rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* FORM */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    .form-row { margin-bottom: 1.1rem; }
+    .form-row label {
+      display: block; font-size: .82rem; font-weight: 600;
+      color: var(--text); margin-bottom: .4rem;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap input {
+      width: 100%; padding: .75rem 1rem;
+      border: 1.5px solid var(--border); border-radius: 9px;
+      font-size: .95rem; font-family: 'Inter', sans-serif;
+      color: var(--text); outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-wrap input:focus {
+      border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(46,134,222,0.12);
+    }
+    .input-wrap input.error { border-color: var(--error); }
+    .toggle-pw {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--gray);
+      font-size: .85rem; padding: 2px;
+    }
+    .field-error { font-size: .78rem; color: var(--error); margin-top: .3rem; display: none; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+
+    .forgot {
+      text-align: right; margin-top: -.4rem; margin-bottom: 1rem;
+    }
+    .forgot a { font-size: .82rem; color: var(--sky); text-decoration: none; }
+    .forgot a:hover { text-decoration: underline; }
+
+    /* TERMS */
+    .terms-row {
+      display: flex; align-items: flex-start; gap: .6rem;
+      margin-bottom: 1.2rem;
+    }
+    .terms-row input[type="checkbox"] {
+      margin-top: 2px; width: 16px; height: 16px;
+      accent-color: var(--sky); flex-shrink: 0; cursor: pointer;
+    }
+    .terms-row label {
+      font-size: .82rem; color: var(--gray); cursor: pointer; line-height: 1.5;
+    }
+    .terms-row a { color: var(--sky); text-decoration: none; }
+    .terms-row a:hover { text-decoration: underline; }
+
+    /* SUBMIT */
+    .btn-submit {
+      width: 100%; background: var(--navy); color: var(--white);
+      border: none; padding: .88rem; border-radius: 9px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background .2s, transform .15s;
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+    }
+    .btn-submit:hover { background: var(--blue); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    /* SPINNER */
+    .spinner {
+      width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: var(--white); border-radius: 50%;
+      animation: spin .7s linear infinite; display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--navy); color: var(--white);
+      padding: .85rem 1.6rem; border-radius: 10px;
+      font-size: .9rem; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      transition: transform .35s cubic-bezier(.34,1.56,.64,1);
+      z-index: 200; white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error-toast { border-left: 4px solid var(--error); }
+
+    /* FOOTER LINK */
+    .back-link {
+      margin-top: 1.4rem; text-align: center;
+      font-size: .85rem; color: rgba(255,255,255,0.6);
+    }
+    .back-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .back-link a:hover { text-decoration: underline; }
+
+    /* PHONE MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300; opacity: 0; pointer-events: none; transition: opacity .2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: 16px;
+      padding: 2rem; width: 90%; max-width: 380px;
+      transform: scale(.95); transition: transform .2s;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal h3 { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
+    .modal p { font-size: .88rem; color: var(--gray); margin-bottom: 1.4rem; }
+    .phone-input-wrap { display: flex; gap: .6rem; margin-bottom: 1.2rem; }
+    .ddi {
+      padding: .75rem .8rem; border: 1.5px solid var(--border); border-radius: 9px;
+      font-size: .95rem; color: var(--text); background: var(--light);
+      font-family: 'Inter', sans-serif; width: 80px; text-align: center;
+    }
+    .modal-btns { display: flex; gap: .7rem; }
+    .btn-cancel {
+      flex: 1; padding: .75rem; border-radius: 9px;
+      border: 1.5px solid var(--border); background: var(--white);
+      color: var(--gray); font-size: .93rem; font-weight: 600;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+    }
+    .btn-confirm {
+      flex: 1; padding: .75rem; border-radius: 9px;
+      border: none; background: #25D366; color: var(--white);
+      font-size: .93rem; font-weight: 700;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: background .2s;
+    }
+    .btn-confirm:hover { background: #1ebe5a; }
+
+    @media (max-width: 480px) {
+      .card { padding: 1.8rem 1.3rem; }
+      .two-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="top-logo">Portal<span>Despachante</span></a>
+
+  <div class="card">
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Entrar</button>
+      <button class="tab" onclick="switchTab('cadastro')">Criar Conta</button>
+    </div>
+
+    <!-- SOCIAL -->
+    <div class="social-btns">
+      <button class="social-btn" onclick="loginGoogle()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Continuar com Google
+      </button>
+      <button class="social-btn whatsapp" onclick="openWhatsAppModal()">
+        <svg viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.531 5.845L.057 23.17a.75.75 0 0 0 .92.92l5.333-1.476A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.95 9.95 0 0 1-5.118-1.415l-.368-.219-3.812 1.055 1.055-3.808-.225-.376A9.952 9.952 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+        </svg>
+        Continuar com WhatsApp
+      </button>
+    </div>
+
+    <div class="divider">ou acesse com e-mail</div>
+
+    <!-- LOGIN FORM -->
+    <div class="form-panel active" id="panel-login">
+      <div class="form-row">
+        <label>E-mail</label>
+        <div class="input-wrap">
+          <input type="email" id="login-email" placeholder="seu@email.com" />
+        </div>
+        <div class="field-error" id="err-login-email">Informe um e-mail válido.</div>
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <div class="input-wrap">
+          <input type="password" id="login-senha" placeholder="Sua senha" />
+          <button class="toggle-pw" onclick="togglePw('login-senha', this)" tabindex="-1">👁</button>
+        </div>
+        <div class="field-error" id="err-login-senha">Informe sua senha.</div>
+      </div>
+      <div class="forgot"><a href="#">Esqueci minha senha</a></div>
+      <button class="btn-submit" id="btn-login" onclick="handleLogin()">
+        <span class="spinner" id="spin-login"></span>
+        Entrar
+      </button>
+    </div>
+
+    <!-- CADASTRO FORM -->
+    <div class="form-panel" id="panel-cadastro">
+      <div class="two-col">
+        <div class="form-row">
+          <label>Nome</label>
+          <div class="input-wrap">
+            <input type="text" id="cad-nome" placeholder="João" />
+          </div>
+          <div class="field-error" id="err-cad-nome">Informe seu nome.</div>
+        </div>
+        <div class="form-row">
+          <label>Sobrenome</label>
+          <div class="input-wrap">
+            <input type="text" id="cad-sobrenome" placeholder="Silva" />
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <label>E-mail</label>
+        <div class="input-wrap">
+          <input type="email" id="cad-email" placeholder="seu@email.com" />
+        </div>
+        <div class="field-error" id="err-cad-email">Informe um e-mail válido.</div>
+      </div>
+      <div class="form-row">
+        <label>CPF ou CNPJ</label>
+        <div class="input-wrap">
+          <input type="text" id="cad-doc" placeholder="000.000.000-00" maxlength="18" oninput="maskDoc(this)" />
+        </div>
+        <div class="field-error" id="err-cad-doc">Informe CPF ou CNPJ.</div>
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <div class="input-wrap">
+          <input type="password" id="cad-senha" placeholder="Mín. 8 caracteres" />
+          <button class="toggle-pw" onclick="togglePw('cad-senha', this)" tabindex="-1">👁</button>
+        </div>
+        <div class="field-error" id="err-cad-senha">A senha deve ter ao menos 8 caracteres.</div>
+      </div>
+      <div class="form-row">
+        <label>Confirmar Senha</label>
+        <div class="input-wrap">
+          <input type="password" id="cad-confirma" placeholder="Repita a senha" />
+          <button class="toggle-pw" onclick="togglePw('cad-confirma', this)" tabindex="-1">👁</button>
+        </div>
+        <div class="field-error" id="err-cad-confirma">As senhas não coincidem.</div>
+      </div>
+      <div class="terms-row">
+        <input type="checkbox" id="terms" />
+        <label for="terms">Concordo com os <a href="#">Termos de Uso</a> e a <a href="#">Política de Privacidade</a> (LGPD)</label>
+      </div>
+      <button class="btn-submit" id="btn-cadastro" onclick="handleCadastro()">
+        <span class="spinner" id="spin-cad"></span>
+        Criar Conta
+      </button>
+    </div>
+  </div>
+
+  <div class="back-link">
+    <a href="index.html">← Voltar ao site</a>
+  </div>
+
+  <!-- WHATSAPP MODAL -->
+  <div class="modal-overlay" id="wpp-modal">
+    <div class="modal">
+      <h3>📱 Entrar com WhatsApp</h3>
+      <p>Informe seu número para receber um código de verificação.</p>
+      <div class="phone-input-wrap">
+        <input class="ddi" value="+55" readonly />
+        <div class="input-wrap" style="flex:1">
+          <input type="tel" id="wpp-phone" placeholder="(11) 99999-9999" maxlength="15" oninput="maskPhone(this)" />
+        </div>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="closeWhatsAppModal()">Cancelar</button>
+        <button class="btn-confirm" onclick="sendWhatsApp()">Enviar Código</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // --- TAB SWITCH ---
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='cadastro')));
+      document.getElementById('panel-login').classList.toggle('active', tab==='login');
+      document.getElementById('panel-cadastro').classList.toggle('active', tab==='cadastro');
+    }
+
+    // --- TOGGLE PASSWORD ---
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁' : '🙈';
+    }
+
+    // --- TOAST ---
+    function showToast(msg, type='success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (type === 'success' ? 'success' : 'error-toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // --- MASKS ---
+    function maskDoc(el) {
+      let v = el.value.replace(/\D/g, '');
+      if (v.length <= 11) {
+        v = v.replace(/(\d{3})(\d)/, '$1.$2')
+             .replace(/(\d{3})(\d)/, '$1.$2')
+             .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      } else {
+        v = v.replace(/(\d{2})(\d)/, '$1.$2')
+             .replace(/(\d{3})(\d)/, '$1.$2')
+             .replace(/(\d{3})(\d)/, '$1/$2')
+             .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+      }
+      el.value = v;
+    }
+
+    function maskPhone(el) {
+      let v = el.value.replace(/\D/g, '');
+      v = v.replace(/(\d{2})(\d)/, '($1) $2')
+           .replace(/(\d{5})(\d)/, '$1-$2');
+      el.value = v;
+    }
+
+    // --- FIELD ERROR ---
+    function setError(id, show) {
+      const input = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (!input || !err) return;
+      input.classList.toggle('error', show);
+      err.style.display = show ? 'block' : 'none';
+    }
+
+    // --- LOADING ---
+    function setLoading(btnId, spinId, loading) {
+      const btn = document.getElementById(btnId);
+      const spin = document.getElementById(spinId);
+      btn.disabled = loading;
+      spin.style.display = loading ? 'inline-block' : 'none';
+    }
+
+    // --- LOGIN ---
+    function handleLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const senha = document.getElementById('login-senha').value;
+      let valid = true;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setError('login-email', !emailOk);
+      setError('login-senha', !senha);
+      if (!emailOk || !senha) return;
+
+      setLoading('btn-login', 'spin-login', true);
+      setTimeout(() => {
+        setLoading('btn-login', 'spin-login', false);
+        showToast('✅ Login realizado com sucesso!', 'success');
+        // Aqui redirecionaria para o dashboard
+        window.location.href = "dashboard.html";
+      }, 1800);
+    }
+
+    // --- CADASTRO ---
+    function handleCadastro() {
+      const nome    = document.getElementById('cad-nome').value.trim();
+      const email   = document.getElementById('cad-email').value.trim();
+      const doc     = document.getElementById('cad-doc').value.trim();
+      const senha   = document.getElementById('cad-senha').value;
+      const confirma= document.getElementById('cad-confirma').value;
+      const terms   = document.getElementById('terms').checked;
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setError('cad-nome',     !nome);
+      setError('cad-email',    !emailOk);
+      setError('cad-doc',      doc.replace(/\D/g,'').length < 11);
+      setError('cad-senha',    senha.length < 8);
+      setError('cad-confirma', senha !== confirma || !confirma);
+
+      if (!nome || !emailOk || doc.replace(/\D/g,'').length < 11 || senha.length < 8 || senha !== confirma) return;
+      if (!terms) { showToast('⚠️ Aceite os Termos de Uso para continuar.', 'error'); return; }
+
+      setLoading('btn-cadastro', 'spin-cad', true);
+      setTimeout(() => {
+        setLoading('btn-cadastro', 'spin-cad', false);
+        showToast('🎉 Conta criada! Verifique seu e-mail.', 'success');
+        setTimeout(() => switchTab('login'), 1500);
+      }, 2000);
+    }
+
+    // --- GOOGLE (placeholder) ---
+    function loginGoogle() {
+      showToast('🔗 Redirecionando para o Google...', 'success');
+      // Integrar Google OAuth aqui
+    }
+
+    // --- WHATSAPP MODAL ---
+    function openWhatsAppModal() {
+      document.getElementById('wpp-modal').classList.add('open');
+      setTimeout(() => document.getElementById('wpp-phone').focus(), 200);
+    }
+    function closeWhatsAppModal() {
+      document.getElementById('wpp-modal').classList.remove('open');
+    }
+    function sendWhatsApp() {
+      const phone = document.getElementById('wpp-phone').value.replace(/\D/g,'');
+      if (phone.length < 10) { showToast('⚠️ Informe um número válido.', 'error'); return; }
+      closeWhatsAppModal();
+      showToast('📲 Código enviado via WhatsApp!', 'success');
+      // Integrar API WhatsApp aqui
+    }
+
+    // Fechar modal clicando fora
+    document.getElementById('wpp-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeWhatsAppModal();
+    });
+  </script>
+</body>
+</html>

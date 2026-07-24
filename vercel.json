@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/api/consulta", "destination": "/api/consulta.js" },
+    { "source": "/api/status", "destination": "/api/status.js" }
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
+}

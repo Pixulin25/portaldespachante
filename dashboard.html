@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Despachante — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#0B1F3A; --blue:#1A4A8A; --sky:#2E86DE; --accent:#F4A733;
+      --light:#EEF4FF; --white:#FFFFFF; --gray:#6B7A99; --text:#1C2B40;
+      --border:#D6E0F0; --green:#27AE60; --red:#E03D3D; --sidebar-w:240px;
+    }
+    body { font-family:'Inter',sans-serif; background:#F4F7FB; color:var(--text); display:flex; min-height:100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); background:var(--navy); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:50; }
+    .sidebar-logo { padding:1.5rem 1.4rem 1.2rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; color:var(--white); border-bottom:1px solid rgba(255,255,255,0.08); }
+    .sidebar-logo span { color:var(--accent); }
+    .sidebar-nav { flex:1; padding:1.2rem 0; overflow-y:auto; }
+    .nav-group-label { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); padding:.8rem 1.4rem .4rem; }
+    .nav-item { display:flex; align-items:center; gap:.75rem; padding:.72rem 1.4rem; cursor:pointer; color:rgba(255,255,255,0.6); font-size:.9rem; font-weight:500; transition:all .15s; border-left:3px solid transparent; text-decoration:none; }
+    .nav-item:hover { color:var(--white); background:rgba(255,255,255,0.06); }
+    .nav-item.active { color:var(--white); background:rgba(46,134,222,0.18); border-left-color:var(--sky); }
+    .nav-item .icon { font-size:1.1rem; width:20px; text-align:center; }
+    .sidebar-user { padding:1.2rem 1.4rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:.75rem; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:var(--sky); color:var(--white); font-weight:700; font-size:.9rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .user-info { flex:1; min-width:0; }
+    .user-name { font-size:.88rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .user-role { font-size:.75rem; color:rgba(255,255,255,0.45); }
+
+    /* MAIN */
+    .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+    .topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+    .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; color:var(--navy); }
+    .topbar-right { display:flex; align-items:center; gap:1rem; }
+    .credits-pill { display:flex; align-items:center; gap:.5rem; background:var(--light); border:1px solid var(--border); padding:.45rem .9rem; border-radius:100px; font-size:.88rem; font-weight:600; color:var(--navy); }
+    .credits-pill .dot { width:8px; height:8px; background:var(--green); border-radius:50%; }
+
+    /* CONTENT */
+    .content { padding:2rem; flex:1; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* STATS */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.2rem; margin-bottom:2rem; }
+    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:1.4rem 1.5rem; }
+    .stat-card .label { font-size:.8rem; color:var(--gray); font-weight:500; margin-bottom:.5rem; }
+    .stat-card .value { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:var(--navy); line-height:1; }
+    .stat-card .sub { font-size:.8rem; color:var(--gray); margin-top:.4rem; }
+    .stat-card .icon-wrap { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:.9rem; }
+    .ic-blue{background:#EEF4FF} .ic-green{background:#EAFAF1} .ic-orange{background:#FFF8EC} .ic-red{background:#FEF0F0}
+
+    /* FORM */
+    .card-box { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:2rem; margin-bottom:1.5rem; }
+    .card-box h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); margin-bottom:1.5rem; font-size:1.1rem; }
+    .form-row { display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end; }
+    .field { flex:1; min-width:150px; }
+    .field label { display:block; font-size:.82rem; font-weight:600; color:var(--text); margin-bottom:.4rem; }
+    .field input, .field select { width:100%; padding:.75rem 1rem; border:1.5px solid var(--border); border-radius:9px; font-size:.95rem; font-family:'Inter',sans-serif; color:var(--text); outline:none; background:var(--white); transition:border-color .2s; }
+    .field input:focus, .field select:focus { border-color:var(--sky); }
+    .placa-input { text-transform:uppercase; letter-spacing:.1em; font-weight:700 !important; font-size:1.05rem !important; }
+    .btn-action { background:var(--navy); color:var(--white); border:none; padding:.75rem 1.6rem; border-radius:9px; font-size:.93rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background .2s; white-space:nowrap; }
+    .btn-action:hover { background:var(--blue); }
+    .btn-action:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-sky { background:var(--sky) !important; }
+    .btn-sky:hover { background:#1a70cc !important; }
+    .btn-outline { background:var(--white); color:var(--text); border:1.5px solid var(--border); padding:.6rem 1.2rem; border-radius:8px; font-size:.88rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:border-color .2s; }
+    .btn-outline:hover { border-color:var(--sky); color:var(--sky); }
+
+    /* TABS */
+    .tab-group { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .tab-btn { padding:.5rem 1rem; border-radius:8px; border:1.5px solid var(--border); background:var(--white); font-size:.83rem; font-weight:600; color:var(--gray); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; }
+    .tab-btn.active { background:var(--navy); color:var(--white); border-color:var(--navy); }
+    .tab-btn:hover:not(.active) { border-color:var(--sky); color:var(--sky); }
+
+    /* RESULTADO */
+    .resultado { display:none; margin-top:1.5rem; border-top:2px solid var(--light); padding-top:1.5rem; }
+    .resultado.show { display:block; }
+    .resultado-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+    .placa-badge { background:var(--navy); color:var(--white); font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; padding:.4rem 1rem; border-radius:8px; letter-spacing:.12em; }
+    .provedor-badge { background:var(--light); color:var(--sky); font-size:.78rem; font-weight:700; padding:.3rem .8rem; border-radius:100px; border:1px solid var(--border); }
+    .status-badge { padding:.35rem .9rem; border-radius:100px; font-size:.82rem; font-weight:700; }
+    .status-ok { background:#EAFAF1; color:var(--green); }
+    .status-alert { background:#FEF0F0; color:var(--red); }
+    .res-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.8rem; }
+    .res-item { background:var(--light); border-radius:9px; padding:1rem; }
+    .res-item .rl { font-size:.75rem; color:var(--gray); font-weight:500; margin-bottom:.2rem; text-transform:uppercase; letter-spacing:.04em; }
+    .res-item .rv { font-size:.93rem; font-weight:600; color:var(--navy); word-break:break-word; }
+    .res-raw { background:#1e1e2e; color:#cdd6f4; border-radius:10px; padding:1.2rem; font-size:.78rem; font-family:monospace; overflow:auto; max-height:350px; margin-top:1rem; white-space:pre-wrap; display:none; }
+    .res-raw.show { display:block; }
+    .res-actions { display:flex; gap:.8rem; margin-top:1.2rem; flex-wrap:wrap; }
+
+    /* TABELA */
+    .table-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+    .table-header { padding:1.2rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; }
+    .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); font-size:1rem; }
+    .table-search { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.85rem; font-family:'Inter',sans-serif; outline:none; width:200px; transition:border-color .2s; }
+    .table-search:focus { border-color:var(--sky); }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#F9FAFC; font-size:.78rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.05em; padding:.85rem 1.5rem; text-align:left; border-bottom:1px solid var(--border); }
+    td { padding:1rem 1.5rem; font-size:.88rem; border-bottom:1px solid #F0F4FA; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FAFBFF; }
+    .td-placa { font-weight:700; font-family:'Syne',sans-serif; letter-spacing:.08em; }
+    .tag { display:inline-block; padding:.25rem .7rem; border-radius:100px; font-size:.75rem; font-weight:700; }
+    .tag-ok{background:#EAFAF1;color:var(--green)} .tag-pend{background:#FFF8EC;color:#C0822A}
+    .btn-dl { background:none; border:1px solid var(--border); border-radius:6px; padding:.3rem .7rem; font-size:.8rem; color:var(--sky); cursor:pointer; font-family:'Inter',sans-serif; }
+    .btn-dl:hover { background:var(--light); }
+
+    /* ESTADOS CRLV */
+    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:.6rem; margin-bottom:1.5rem; }
+    .estado-btn { padding:.6rem; border:1.5px solid var(--border); border-radius:9px; background:var(--white); font-size:.85rem; font-weight:600; color:var(--text); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; text-align:center; }
+    .estado-btn:hover { border-color:var(--sky); color:var(--sky); }
+    .estado-btn.sel { border-color:var(--sky); background:var(--light); color:var(--navy); }
+    .estado-btn.agendado { border-color:#F4A733; }
+    .badge-ag { font-size:.62rem; display:block; color:var(--accent); margin-top:2px; }
+
+    /* LOADING */
+    .loading-overlay { position:fixed; inset:0; background:rgba(11,31,58,0.75); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:400; opacity:0; pointer-events:none; transition:opacity .3s; }
+    .loading-overlay.show { opacity:1; pointer-events:all; }
+    .spinner-big { width:52px; height:52px; border:4px solid rgba(255,255,255,0.2); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:1rem; }
+    .loading-overlay p { color:var(--white); font-size:.95rem; font-weight:500; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:var(--white); padding:.85rem 1.6rem; border-radius:10px; font-size:.9rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,0.25); transition:transform .35s cubic-bezier(.34,1.56,.64,1); z-index:300; white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.ok { border-left:4px solid var(--green); }
+    .toast.err { border-left:4px solid var(--red); }
+
+    /* VAZIO */
+    .vazio { text-align:center; padding:3rem; color:var(--gray); }
+    .vazio .vi { font-size:2.5rem; margin-bottom:.8rem; }
+
+    @media(max-width:768px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .topbar{padding:0 1rem} .content{padding:1rem} }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Portal<span>Despachante</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Principal</div>
+    <a class="nav-item active" onclick="showPanel('inicio',this)"><span class="icon">🏠</span> Início</a>
+    <a class="nav-item" onclick="showPanel('consulta',this)"><span class="icon">🔍</span> Consulta Veicular</a>
+    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> CRLV-e Digital</a>
+    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
+    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico</a>
+    <div class="nav-group-label">Conta</div>
+    <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Comprar Créditos</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar" id="avatar-initials">U</div>
+    <div class="user-info">
+      <div class="user-name" id="user-name">Utilizador</div>
+      <div class="user-role">Despachante</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Início</div>
+    <div class="topbar-right">
+      <div class="credits-pill"><div class="dot"></div><span id="saldo-label">0 consultas hoje</span></div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- INÍCIO -->
+    <div class="panel active" id="panel-inicio">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="icon-wrap ic-blue">🔍</div><div class="label">Consultas hoje</div><div class="value" id="stat-hoje">0</div></div>
+        <div class="stat-card"><div class="icon-wrap ic-green">✅</div><div class="label">Sem restrições</div><div class="value" id="stat-ok">0</div></div>
+        <div class="stat-card"><div class="icon-wrap ic-orange">📄</div><div class="label">CRLV emitidos</div><div class="value" id="stat-crlv">0</div></div>
+        <div class="stat-card"><div class="icon-wrap ic-red">⚠️</div><div class="label">Com restrições</div><div class="value" id="stat-rest">0</div></div>
+      </div>
+
+      <!-- CONSULTA RÁPIDA -->
+      <div class="card-box">
+        <h3>⚡ Consulta Rápida</h3>
+        <div class="form-row">
+          <div class="field" style="max-width:180px">
+            <label>Placa do Veículo</label>
+            <input class="placa-input" id="placa-rapida" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+          </div>
+          <div class="field">
+            <label>Tipo de Consulta</label>
+            <select id="tipo-rapida">
+              <option value="/consultar-placa-v2">Base Estadual</option>
+              <option value="/consultar-placa-nacional">Base Nacional</option>
+              <option value="/consultar-placa-v3">Placa V3 (Completa)</option>
+              <option value="/consultar-cautelar">Cautelar / Leilão</option>
+              <option value="/gravame">Gravame</option>
+              <option value="/consultar-debito">Débitos</option>
+              <option value="/consultar-placa-fipe">FIPE</option>
+              <option value="/proprietario-atual">Proprietário Atual</option>
+              <option value="/renajud">Renajud</option>
+              <option value="/licenciamento-bin">Licenciamento + BIN</option>
+            </select>
+          </div>
+          <button class="btn-action" onclick="fazerConsulta('placa-rapida','tipo-rapida','res-rapida','rr-placa','rr-status','rr-grid','rr-json','rr-provedor')">🔍 Consultar</button>
+        </div>
+        <div class="resultado" id="res-rapida">
+          <div class="resultado-header">
+            <div class="placa-badge" id="rr-placa">—</div>
+            <div class="status-badge status-ok" id="rr-status">—</div>
+            <div class="provedor-badge" id="rr-provedor">—</div>
+          </div>
+          <div class="res-grid" id="rr-grid"></div>
+          <div class="res-actions">
+            <button class="btn-action btn-sky" id="rr-btn-pdf" onclick="showToast('Gerando PDF...','ok')">📥 Baixar PDF</button>
+            <button class="btn-outline" onclick="toggleJSON('rr-json')">{ } Ver JSON</button>
+            <button class="btn-outline" onclick="limparResultado('res-rapida','placa-rapida')">Nova Consulta</button>
+          </div>
+          <pre class="res-raw" id="rr-json"></pre>
+        </div>
+      </div>
+
+      <!-- RECENTES -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Últimas Consultas</h3>
+          <a onclick="showPanel('historico',null)" style="font-size:.85rem;color:var(--sky);cursor:pointer;font-weight:600;">Ver todas →</a>
+        </div>
+        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Status</th></tr></thead>
+        <tbody id="tbody-recente"></tbody></table>
+      </div>
+    </div>
+
+    <!-- CONSULTA VEICULAR -->
+    <div class="panel" id="panel-consulta">
+      <div class="card-box">
+        <h3>🔍 Consulta Veicular</h3>
+        <div class="tab-group">
+          <button class="tab-btn active" onclick="selTab(this,'/consultar-placa-v2','placa')">Base Estadual</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-nacional','placa')">Base Nacional</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-v3','placa')">Placa V3</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-cautelar','placa')">Cautelar</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-chassi','chassi')">Chassi</button>
+          <button class="tab-btn" onclick="selTab(this,'/gravame','placa')">Gravame</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-debito','placa')">Débitos</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-fipe','placa')">FIPE</button>
+          <button class="tab-btn" onclick="selTab(this,'/proprietario-atual','placa')">Proprietário</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-historico-proprietario','placa')">Hist. Proprietário</button>
+          <button class="tab-btn" onclick="selTab(this,'/auto-quilometragem','placa')">Quilometragem</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-motor','placa')">Motor</button>
+          <button class="tab-btn" onclick="selTab(this,'/renajud','placa')">Renajud</button>
+          <button class="tab-btn" onclick="selTab(this,'/licenciamento-bin','placa')">Licenciamento</button>
+        </div>
+        <div class="form-row">
+          <div class="field" style="max-width:220px">
+            <label id="label-campo">Placa</label>
+            <input class="placa-input" id="campo-consulta" placeholder="ABC1D23" maxlength="17" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+          </div>
+          <button class="btn-action" onclick="fazerConsultaFull()">🔍 Consultar</button>
+        </div>
+        <div class="resultado" id="res-full">
+          <div class="resultado-header">
+            <div class="placa-badge" id="rf-placa">—</div>
+            <div class="status-badge status-ok" id="rf-status">—</div>
+            <div class="provedor-badge" id="rf-provedor">—</div>
+          </div>
+          <div class="res-grid" id="rf-grid"></div>
+          <div class="res-actions">
+            <button class="btn-action btn-sky" id="rf-btn-pdf">📥 Baixar PDF</button>
+            <button class="btn-outline" onclick="toggleJSON('rf-json')">{ } Ver JSON</button>
+            <button class="btn-outline" onclick="limparResultado('res-full','campo-consulta')">Nova Consulta</button>
+          </div>
+          <pre class="res-raw" id="rf-json"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRLV -->
+    <div class="panel" id="panel-crlv">
+      <div class="card-box">
+        <h3>📄 Emitir CRLV-e Digital</h3>
+        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Selecione o estado e informe a placa. Estados com 🕐 são agendados e podem demorar alguns minutos.</p>
+        <div class="estados-grid" id="estados-grid"></div>
+        <div class="form-row">
+          <div class="field" style="max-width:180px"><label>Placa</label><input class="placa-input" id="crlv-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
+          <div class="field" style="max-width:200px"><label>Renavam (se exigido)</label><input type="text" id="crlv-renavam" placeholder="00000000000" maxlength="11" /></div>
+          <button class="btn-action" onclick="emitirCRLV()">📄 Emitir CRLV</button>
+        </div>
+        <div class="resultado" id="res-crlv">
+          <div class="resultado-header">
+            <div class="placa-badge" id="rc-placa">—</div>
+            <div class="status-badge status-ok">✓ CRLV Emitido</div>
+            <div class="provedor-badge" id="rc-provedor">—</div>
+          </div>
+          <div class="res-grid" id="rc-grid"></div>
+          <div class="res-actions">
+            <button class="btn-action btn-sky" id="btn-dl-crlv">📥 Baixar PDF</button>
+            <button class="btn-outline" onclick="limparResultado('res-crlv','crlv-placa')">Nova Emissão</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMUNICADO -->
+    <div class="panel" id="panel-comunicado">
+      <div class="card-box">
+        <h3>📝 Comunicado de Venda</h3>
+        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Registre a transferência de responsabilidade do veículo.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">
+          <div class="field"><label>Placa</label><input class="placa-input" id="com-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
+          <div class="field"><label>Renavam</label><input type="text" id="com-renavam" placeholder="00000000000" maxlength="11" /></div>
+          <div class="field"><label>Nome do Comprador</label><input type="text" id="com-comprador" placeholder="Nome completo" /></div>
+          <div class="field"><label>CPF/CNPJ do Comprador</label><input type="text" id="com-doc" placeholder="000.000.000-00" /></div>
+          <div class="field"><label>Data da Venda</label><input type="date" id="com-data" /></div>
+          <div class="field"><label>Valor de Venda (R$)</label><input type="number" id="com-valor" placeholder="0,00" /></div>
+        </div>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+          <button class="btn-action" onclick="acaoComunicado('inserir')">📝 Inserir</button>
+          <button class="btn-action btn-sky" onclick="acaoComunicado('transmitir')">📤 Transmitir</button>
+        </div>
+        <div class="resultado" id="res-comunicado" style="margin-top:1.5rem">
+          <div class="res-grid" id="rcom-grid"></div>
+          <pre class="res-raw show" id="rcom-json" style="margin-top:1rem"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="panel" id="panel-historico">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Histórico de Consultas</h3>
+          <input class="table-search" placeholder="Buscar placa..." oninput="filtrarHistorico(this.value)" />
+        </div>
+        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Provedor</th><th>Status</th></tr></thead>
+        <tbody id="tbody-historico"></tbody></table>
+        <div id="historico-vazio" class="vazio" style="display:none"><div class="vi">📋</div><p>Nenhuma consulta realizada ainda.</p></div>
+      </div>
+    </div>
+
+    <!-- CRÉDITOS -->
+    <div class="panel" id="panel-creditos">
+      <div class="card-box">
+        <h3>💳 Comprar Créditos</h3>
+        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Em breve — integração com Mercado Pago em desenvolvimento.</p>
+        <div style="background:var(--light);border-radius:12px;padding:2rem;text-align:center">
+          <div style="font-size:2rem;margin-bottom:.8rem">🚧</div>
+          <p style="color:var(--gray)">Sistema de créditos via Mercado Pago em breve!</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading"><div class="spinner-big"></div><p id="loading-msg">Consultando...</p></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+//  ESTADO
+// ============================================================
+let tipoEndpoint = '/consultar-placa-v2';
+let tipoCampo = 'placa';
+let estadoCRLV = '';
+let historico = JSON.parse(localStorage.getItem('pd_historico') || '[]');
+let stats = JSON.parse(localStorage.getItem('pd_stats') || '{"hoje":0,"ok":0,"crlv":0,"rest":0}');
+
+// Resetar stats diariamente
+const hoje = new Date().toDateString();
+if (localStorage.getItem('pd_data') !== hoje) {
+  stats = { hoje:0, ok:0, crlv:0, rest:0 };
+  localStorage.setItem('pd_data', hoje);
+}
+
+// ============================================================
+//  API
+// ============================================================
+async function chamarAPI(endpoint, params = {}) {
+  const res = await fetch('/api/consulta', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ endpoint, ...params }),
+  });
+  const resultado = await res.json();
+  if (!res.ok) throw new Error(resultado.erro || `Erro ${res.status}`);
+  if (resultado.tipo === 'pdf') {
+    const bytes = Uint8Array.from(atob(resultado.base64), c => c.charCodeAt(0));
+    return { tipo: 'pdf', blob: new Blob([bytes], { type: 'application/pdf' }), provedor: resultado.provedor };
+  }
+  return { tipo: 'json', data: resultado.dados, provedor: resultado.provedor };
+}
+
+// ============================================================
+//  CONSULTAS
+// ============================================================
+async function fazerConsulta(placaId, tipoId, resId, placaBadgeId, statusId, gridId, jsonId, provedorId) {
+  const valor = document.getElementById(placaId).value.trim();
+  const endpoint = document.getElementById(tipoId).value;
+  if (valor.length < 7) { showToast('⚠️ Placa inválida — mínimo 7 caracteres', 'err'); return; }
+
+  mostrarLoading('Consultando base de dados...');
+  try {
+    const campo = endpoint === '/consultar-chassi' ? 'chassi' : 'placa';
+    const resultado = await chamarAPI(endpoint, { [campo]: valor });
+    esconderLoading();
+
+    salvarHistorico(valor, endpoint, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok');
+    atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));
+
+    if (resultado.tipo === 'pdf') {
+      baixarBlob(resultado.blob, `${endpoint.replace('/','')}-${valor}.pdf`);
+      showToast('✅ PDF baixado com sucesso!', 'ok');
+      esconderLoading();
+      return;
+    }
+
+    // Exibir resultado
+    document.getElementById(placaBadgeId).textContent = valor;
+    document.getElementById(provedorId).textContent = '🔗 ' + (resultado.provedor || 'API');
+
+    const temRestricao = detectarRestricao(resultado.data);
+    document.getElementById(statusId).textContent = temRestricao ? '⚠ Restrição encontrada' : '✓ Sem restrições';
+    document.getElementById(statusId).className = 'status-badge ' + (temRestricao ? 'status-alert' : 'status-ok');
+
+    renderGrid(gridId, resultado.data);
+    document.getElementById(jsonId).textContent = JSON.stringify(resultado.data, null, 2);
+
+    // Botão PDF
+    const btnPdf = document.getElementById(placaBadgeId.replace('placa','btn-pdf').replace('rr-','rr-').replace('rf-','rf-'));
+    if (btnPdf) btnPdf.onclick = () => gerarPDFTexto(valor, resultado.data);
+
+    document.getElementById(resId).classList.add('show');
+    showToast('✅ Consulta realizada com sucesso!', 'ok');
+  } catch (e) {
+    esconderLoading();
+    showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
+  }
+}
+
+async function fazerConsultaFull() {
+  const valor = document.getElementById('campo-consulta').value.trim();
+  if (!valor || valor.length < 7) { showToast('⚠️ Preencha o campo corretamente', 'err'); return; }
+
+  mostrarLoading('Consultando base de dados...');
+  try {
+    const resultado = await chamarAPI(tipoEndpoint, { [tipoCampo]: valor });
+    esconderLoading();
+
+    salvarHistorico(valor, tipoEndpoint, resultado.provedor, detectarRestricao(resultado.data) ? 'alerta' : 'ok');
+    atualizarStats(detectarRestricao(resultado.data));
+
+    if (resultado.tipo === 'pdf') {
+      baixarBlob(resultado.blob, `${tipoEndpoint.replace('/','')}-${valor}.pdf`);
+      showToast('✅ PDF baixado!', 'ok');
+      return;
+    }
+
+    document.getElementById('rf-placa').textContent = valor;
+    document.getElementById('rf-provedor').textContent = '🔗 ' + (resultado.provedor || 'API');
+
+    const temRestricao = detectarRestricao(resultado.data);
+    document.getElementById('rf-status').textContent = temRestricao ? '⚠ Restrição encontrada' : '✓ Sem restrições';
+    document.getElementById('rf-status').className = 'status-badge ' + (temRestricao ? 'status-alert' : 'status-ok');
+
+    renderGrid('rf-grid', resultado.data);
+    document.getElementById('rf-json').textContent = JSON.stringify(resultado.data, null, 2);
+    document.getElementById('rf-btn-pdf').onclick = () => gerarPDFTexto(valor, resultado.data);
+    document.getElementById('res-full').classList.add('show');
+    showToast('✅ Consulta realizada!', 'ok');
+  } catch (e) {
+    esconderLoading();
+    showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
+  }
+}
+
+// ============================================================
+//  CRLV
+// ============================================================
+const CRLV_MAP = {
+  AC:{ep:'/crlv-acre',ag:false}, AL:{ep:'/crlv-agendado-alagoas',ag:true},
+  AP:{ep:'/crlv-amapa',ag:false}, BA:{ep:'/crlv-bahia',ag:false},
+  CE:{ep:'/crlv-agendado-ceara',ag:true}, DF:{ep:'/crlv-agendado-distrito-federal',ag:true},
+  ES:{ep:'/crlv-agendado-espirito-santo',ag:true}, GO:{ep:'/crlv-goias',ag:false},
+  MA:{ep:'/crlv-maranhao',ag:false}, MG:{ep:'/crlv-minas-gerais',ag:false},
+  MS:{ep:'/crlv-mato-grosso-do-sul',ag:false}, MT:{ep:'/crlv-mato-grosso',ag:false},
+  PA:{ep:'/crlv-para',ag:false}, PB:{ep:'/crlv-agendado-paraiba',ag:true},
+  PE:{ep:'/crlv-agendado-pernambuco',ag:true}, PI:{ep:'/crlv-piaui',ag:false},
+  PR:{ep:'/crlv-parana',ag:false}, RJ:{ep:'/crlv-agendado-rio-de-janeiro',ag:true},
+  RN:{ep:'/crlv-agendado-rio-grande-do-norte',ag:true}, RO:{ep:'/crlv-rondonia',ag:false},
+  RR:{ep:'/crlv-roraima',ag:false}, SC:{ep:'/crlv-agendado-santa-catarina',ag:true},
+  SE:{ep:'/crlv-sergipe',ag:false}, SP:{ep:'/crlv-sao-paulo',ag:false},
+  TO:{ep:'/crlv-tocantins',ag:false}
+};
+
+function buildEstadosGrid() {
+  document.getElementById('estados-grid').innerHTML = Object.entries(CRLV_MAP).map(([uf, cfg]) => `
+    <button class="estado-btn ${cfg.ag?'agendado':''}" onclick="selEstado('${uf}',this)">
+      ${uf}${cfg.ag?'<span class="badge-ag">🕐</span>':''}
+    </button>`).join('');
+}
+
+function selEstado(uf, el) {
+  document.querySelectorAll('.estado-btn').forEach(b => b.classList.remove('sel'));
+  el.classList.add('sel');
+  estadoCRLV = uf;
+}
+
+async function emitirCRLV() {
+  if (!estadoCRLV) { showToast('⚠️ Selecione um estado', 'err'); return; }
+  const placa = document.getElementById('crlv-placa').value.trim();
+  const renavam = document.getElementById('crlv-renavam').value.trim();
+  if (placa.length < 7) { showToast('⚠️ Placa inválida', 'err'); return; }
+
+  const cfg = CRLV_MAP[estadoCRLV];
+  const body = { placa };
+  if (renavam) body.renavam = renavam;
+
+  mostrarLoading(`Emitindo CRLV — ${estadoCRLV}...`);
+  try {
+    const resultado = await chamarAPI(cfg.ep, body);
+    esconderLoading();
+    stats.crlv++; salvarStats();
+    document.getElementById('stat-crlv').textContent = stats.crlv;
+
+    if (resultado.tipo === 'pdf') {
+      baixarBlob(resultado.blob, `CRLV-${estadoCRLV}-${placa}.pdf`);
+      document.getElementById('rc-placa').textContent = placa;
+      document.getElementById('rc-provedor').textContent = '🔗 ' + (resultado.provedor || 'API');
+      document.getElementById('btn-dl-crlv').onclick = () => baixarBlob(resultado.blob, `CRLV-${estadoCRLV}-${placa}.pdf`);
+      document.getElementById('res-crlv').classList.add('show');
+      showToast('✅ CRLV emitido com sucesso!', 'ok');
+    } else {
+      document.getElementById('rc-placa').textContent = placa;
+      document.getElementById('rc-provedor').textContent = '🔗 ' + (resultado.provedor || 'API');
+      renderGrid('rc-grid', resultado.data);
+      document.getElementById('res-crlv').classList.add('show');
+      showToast('✅ CRLV processado!', 'ok');
+    }
+  } catch (e) {
+    esconderLoading();
+    showToast('❌ ' + (e.message || 'Erro na emissão'), 'err');
+  }
+}
+
+// ============================================================
+//  COMUNICADO
+// ============================================================
+async function acaoComunicado(acao) {
+  const body = {
+    placa: document.getElementById('com-placa').value,
+    renavam: document.getElementById('com-renavam').value,
+    nomeComprador: document.getElementById('com-comprador').value,
+    docComprador: document.getElementById('com-doc').value,
+    dataVenda: document.getElementById('com-data').value,
+    valorVenda: document.getElementById('com-valor').value,
+  };
+  if (!body.placa || !body.nomeComprador) { showToast('⚠️ Preencha os campos obrigatórios', 'err'); return; }
+
+  mostrarLoading(acao === 'inserir' ? 'Inserindo comunicado...' : 'Transmitindo comunicado...');
+  try {
+    const resultado = await chamarAPI(`/comunicado-venda/${acao}`, body);
+    esconderLoading();
+    renderGrid('rcom-grid', resultado.data);
+    document.getElementById('rcom-json').textContent = JSON.stringify(resultado.data, null, 2);
+    document.getElementById('res-comunicado').classList.add('show');
+    showToast(`✅ Comunicado ${acao === 'inserir' ? 'inserido' : 'transmitido'}!`, 'ok');
+  } catch (e) {
+    esconderLoading();
+    showToast('❌ ' + e.message, 'err');
+  }
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+function detectarRestricao(dados) {
+  if (!dados) return false;
+  const str = JSON.stringify(dados).toLowerCase();
+  return str.includes('restri') || str.includes('leilao') || str.includes('leilão') ||
+         str.includes('roubo') || str.includes('furto') || str.includes('bloqueio');
+}
+
+function renderGrid(id, dados) {
+  const el = document.getElementById(id);
+  if (!dados || typeof dados !== 'object') {
+    el.innerHTML = '<div class="res-item"><div class="rv" style="color:var(--gray)">Dados não estruturados</div></div>';
+    return;
+  }
+  const flat = flatObj(dados);
+  el.innerHTML = Object.entries(flat).slice(0,40).map(([k,v]) =>
+    `<div class="res-item"><div class="rl">${k}</div><div class="rv">${v ?? '—'}</div></div>`
+  ).join('');
+}
+
+function flatObj(obj, prefix='') {
+  return Object.keys(obj).reduce((acc, k) => {
+    const key = prefix ? `${prefix} › ${k}` : k;
+    if (obj[k] && typeof obj[k] === 'object' && !Array.isArray(obj[k])) {
+      Object.assign(acc, flatObj(obj[k], key));
+    } else {
+      acc[key] = Array.isArray(obj[k]) ? obj[k].join(', ') : String(obj[k] ?? '');
+    }
+    return acc;
+  }, {});
+}
+
+function gerarPDFTexto(placa, dados) {
+  const flat = flatObj(dados);
+  const linhas = Object.entries(flat).map(([k,v]) => `${k}: ${v}`).join('\n');
+  const blob = new Blob([`PORTAL DESPACHANTE\nConsulta Veicular\nPlaca: ${placa}\nData: ${new Date().toLocaleString('pt-BR')}\n\n${linhas}`], { type:'text/plain' });
+  baixarBlob(blob, `consulta-${placa}.txt`);
+}
+
+function baixarBlob(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function toggleJSON(id) { document.getElementById(id).classList.toggle('show'); }
+
+function limparResultado(resId, inputId) {
+  document.getElementById(resId).classList.remove('show');
+  document.getElementById(inputId).value = '';
+}
+
+function selTab(el, endpoint, campo) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  tipoEndpoint = endpoint;
+  tipoCampo = campo;
+  document.getElementById('label-campo').textContent = campo === 'chassi' ? 'Chassi' : 'Placa';
+  document.getElementById('campo-consulta').placeholder = campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23';
+  document.getElementById('res-full').classList.remove('show');
+}
+
+// ============================================================
+//  HISTÓRICO E STATS
+// ============================================================
+function salvarHistorico(placa, tipo, provedor, status) {
+  historico.unshift({ placa, tipo: tipo.replace('/',''), provedor: provedor||'API', data: new Date().toLocaleString('pt-BR'), status });
+  historico = historico.slice(0, 100);
+  localStorage.setItem('pd_historico', JSON.stringify(historico));
+  renderRecente();
+}
+
+function atualizarStats(temRestricao) {
+  stats.hoje++;
+  if (temRestricao) stats.rest++; else stats.ok++;
+  salvarStats();
+  document.getElementById('stat-hoje').textContent = stats.hoje;
+  document.getElementById('stat-ok').textContent = stats.ok;
+  document.getElementById('stat-rest').textContent = stats.rest;
+  document.getElementById('saldo-label').textContent = stats.hoje + ' consultas hoje';
+}
+
+function salvarStats() { localStorage.setItem('pd_stats', JSON.stringify(stats)); }
+
+function renderRecente() {
+  const tbody = document.getElementById('tbody-recente');
+  if (!historico.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:2rem">Nenhuma consulta ainda</td></tr>';
+    return;
+  }
+  tbody.innerHTML = historico.slice(0,5).map(r => `
+    <tr>
+      <td class="td-placa">${r.placa}</td>
+      <td style="font-size:.82rem">${r.tipo}</td>
+      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
+      <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
+    </tr>`).join('');
+}
+
+function renderHistoricoCompleto(dados) {
+  const tbody = document.getElementById('tbody-historico');
+  const vazio = document.getElementById('historico-vazio');
+  if (!dados.length) { tbody.innerHTML=''; vazio.style.display='block'; return; }
+  vazio.style.display='none';
+  tbody.innerHTML = dados.map(r => `
+    <tr>
+      <td class="td-placa">${r.placa}</td>
+      <td style="font-size:.82rem">${r.tipo}</td>
+      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
+      <td><span class="provedor-badge">${r.provedor}</span></td>
+      <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
+    </tr>`).join('');
+}
+
+function filtrarHistorico(q) {
+  renderHistoricoCompleto(historico.filter(r =>
+    r.placa.includes(q.toUpperCase()) || r.tipo.toLowerCase().includes(q.toLowerCase())
+  ));
+}
+
+// ============================================================
+//  UI
+// ============================================================
+const titulos = { inicio:'Início', consulta:'Consulta Veicular', crlv:'CRLV-e Digital', comunicado:'Comunicado de Venda', historico:'Histórico', creditos:'Comprar Créditos' };
+
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbar-title').textContent = titulos[id] || id;
+  if (id === 'historico') renderHistoricoCompleto(historico);
+}
+
+function mostrarLoading(msg) {
+  document.getElementById('loading-msg').textContent = msg;
+  document.getElementById('loading').classList.add('show');
+}
+function esconderLoading() { document.getElementById('loading').classList.remove('show'); }
+
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast '+type;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+// ============================================================
+//  INIT
+// ============================================================
+(function init() {
+  buildEstadosGrid();
+  renderRecente();
+  document.getElementById('stat-hoje').textContent = stats.hoje;
+  document.getElementById('stat-ok').textContent = stats.ok;
+  document.getElementById('stat-crlv').textContent = stats.crlv;
+  document.getElementById('stat-rest').textContent = stats.rest;
+  document.getElementById('saldo-label').textContent = stats.hoje + ' consultas hoje';
+})();
+</script>
+</body>
+</html>

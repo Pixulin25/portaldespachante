@@ -6,6 +6,7 @@
   <title>Portal Despachante — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -156,9 +157,10 @@
   <div class="sidebar-user">
     <div class="avatar" id="avatar-initials">U</div>
     <div class="user-info">
-      <div class="user-name" id="user-name">Utilizador</div>
-      <div class="user-role">Despachante</div>
+      <div class="user-name" id="user-name">Carregando...</div>
+      <div class="user-role" id="user-creditos">0 créditos</div>
     </div>
+    <button onclick="fazerLogout()" title="Sair" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1.1rem;padding:4px;transition:color .2s;" onmouseover="this.style.color='#E03D3D'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">⏻</button>
   </div>
 </aside>
 
@@ -728,6 +730,49 @@ function showToast(msg, type='ok') {
 }
 
 // ============================================================
+//  SUPABASE
+// ============================================================
+const { createClient } = supabase;
+const sb = createClient(
+  'https://ofutxldgzocvfjcjemlk.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA'
+);
+
+let perfilUsuario = null;
+
+async function carregarPerfil() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const { data: perfil } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+  perfilUsuario = perfil;
+
+  if (perfil) {
+    const nome = perfil.nome || session.user.email;
+    const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('user-name').textContent = nome;
+    document.getElementById('avatar-initials').textContent = iniciais;
+    document.getElementById('user-creditos').textContent = (perfil.creditos || 0) + ' créditos';
+    document.getElementById('saldo-label').textContent = (perfil.creditos || 0) + ' créditos';
+  }
+}
+
+async function fazerLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'login.html';
+}
+
+async function salvarConsultaDB(placa, tipo, status) {
+  if (!perfilUsuario) return;
+  await sb.from('consultas').insert({
+    user_id: perfilUsuario.id,
+    placa,
+    tipo,
+    creditos_usados: 1,
+  });
+}
+
+// ============================================================
 //  INIT
 // ============================================================
 (function init() {
@@ -737,7 +782,7 @@ function showToast(msg, type='ok') {
   document.getElementById('stat-ok').textContent = stats.ok;
   document.getElementById('stat-crlv').textContent = stats.crlv;
   document.getElementById('stat-rest').textContent = stats.rest;
-  document.getElementById('saldo-label').textContent = stats.hoje + ' consultas hoje';
+  carregarPerfil();
 })();
 </script>
 </body>

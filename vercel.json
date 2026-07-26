@@ -1,7 +1,9 @@
 {
   "rewrites": [
     { "source": "/api/consulta", "destination": "/api/consulta.js" },
-    { "source": "/api/status", "destination": "/api/status.js" }
+    { "source": "/api/status",   "destination": "/api/status.js" },
+    { "source": "/api/pagamento","destination": "/api/pagamento.js" },
+    { "source": "/api/webhook",  "destination": "/api/webhook.js" }
   ],
   "cleanUrls": true,
   "trailingSlash": false

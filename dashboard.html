@@ -349,7 +349,7 @@
         <h3>💳 Adicionar Saldo</h3>
         <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Escolha o valor desejado. Pagamento via PIX, cartão ou boleto pelo Mercado Pago.</p>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem" id="pacotes-grid"></div>
-        <div id="mp-loading" style="display:none;text-align:center;padding:2rem;color:var(--gray)">
+        <div id="mp-loading" style="display:none;text-align:center;padding:1.5rem;color:var(--gray)">
           <div style="font-size:1.5rem;margin-bottom:.5rem">⏳</div>
           <p>Redirecionando para o Mercado Pago...</p>
         </div>
@@ -864,10 +864,8 @@ async function carregarPerfil() {
     document.getElementById('avatar-initials').textContent = iniciais;
     document.getElementById('user-creditos').textContent = (perfil.creditos || 0) + ' créditos';
     document.getElementById('saldo-label').textContent = (perfil.creditos || 0) + ' créditos';
+    carregarRecargas();
   }
-}
-
-  carregarRecargas();
 }
 
 async function fazerLogout() {

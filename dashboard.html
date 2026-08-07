@@ -410,6 +410,55 @@ async function chamarAPI(endpoint, params = {}) {
 }
 
 // ============================================================
+//  PREÇOS
+// ============================================================
+const PRECOS = {
+  '/consultar-placa-v2': 5.00,
+  '/consultar-placa-nacional': 5.00,
+  '/consultar-placa-v3': 12.00,
+  '/consultar-cautelar': 29.90,
+  '/consultar-chassi': 5.00,
+  '/gravame': 5.00,
+  '/consultar-debito': 5.00,
+  '/consultar-placa-fipe': 0,
+  '/proprietario-atual': 3.00,
+  '/consultar-historico-proprietario': 7.00,
+  '/auto-quilometragem': 5.00,
+  '/consultar-motor': 5.00,
+  '/renajud': 7.00,
+  '/licenciamento-bin': 5.00,
+  '/comunicado-venda/inserir': 5.00,
+  '/comunicado-venda/transmitir': 30.00,
+};
+
+const PRECOS_CRLV = {
+  AC: 25, AL: 30, AP: 7, BA: 30, CE: 40, GO: 10, MA: 7, MT: 7,
+  MS: 25, MG: 10, PA: 7, PR: 10, PE: 50, PI: 12, RJ: 15,
+  RO: 20, RR: 15, SC: 15, SE: 15, SP: 13, TO: 7, DF: 15,
+  PB: 15, RN: 15, ES: 15,
+};
+
+function getPreco(endpoint) {
+  return PRECOS[endpoint] ?? 5.00;
+}
+
+async function temSaldoSuficiente(valor) {
+  if (!perfilUsuario) return false;
+  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
+  return (data?.creditos || 0) >= valor;
+}
+
+async function descontarSaldo(valor) {
+  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
+  const novoSaldo = Math.max(0, (data?.creditos || 0) - valor);
+  await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', perfilUsuario.id);
+  perfilUsuario.creditos = novoSaldo;
+  document.getElementById('user-creditos').textContent = novoSaldo.toFixed(2) + ' créditos';
+  document.getElementById('saldo-label').textContent = 'R$ ' + novoSaldo.toFixed(2);
+  return novoSaldo;
+}
+
+// ============================================================
 //  CONSULTAS
 // ============================================================
 async function fazerConsulta(placaId, tipoId, resId, placaBadgeId, statusId, gridId, jsonId, provedorId) {

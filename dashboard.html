@@ -838,6 +838,10 @@ async function verificarRetornoPagamento() {
         valor: parseFloat(valor),
         status: 'aprovado',
       });
+      // Adicionar saldo ao perfil
+      const { data: perfilAtual } = await sb.from('profiles').select('creditos').eq('id', user_id).single();
+      const novoSaldo = (perfilAtual?.creditos || 0) + parseFloat(valor);
+      await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', user_id);
     }
     window.history.replaceState({}, '', '/dashboard.html');
   } else if (pagamento === 'falhou') {

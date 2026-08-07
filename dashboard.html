@@ -466,11 +466,19 @@ async function fazerConsulta(placaId, tipoId, resId, placaBadgeId, statusId, gri
   const endpoint = document.getElementById(tipoId).value;
   if (valor.length < 7) { showToast('⚠️ Placa inválida — mínimo 7 caracteres', 'err'); return; }
 
+  const preco = getPreco(endpoint);
+  if (preco > 0) {
+    const ok = await temSaldoSuficiente(preco);
+    if (!ok) { showToast(`⚠️ Saldo insuficiente. Esta consulta custa R$ ${preco.toFixed(2)}`, 'err'); return; }
+  }
+
   mostrarLoading('Consultando base de dados...');
   try {
     const campo = endpoint === '/consultar-chassi' ? 'chassi' : 'placa';
-    const resultado = await chamarAPI(endpoint, { [campo]: valor });
+   const resultado = await chamarAPI(endpoint, { [campo]: valor });
     esconderLoading();
+
+    if (preco > 0) await descontarSaldo(preco);
 
     salvarHistorico(valor, endpoint, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok');
     atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));

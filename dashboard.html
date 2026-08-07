@@ -823,12 +823,22 @@ async function carregarRecargas() {
 }
 
 // Verificar retorno do pagamento
-function verificarRetornoPagamento() {
+async function verificarRetornoPagamento() {
   const params = new URLSearchParams(window.location.search);
   const pagamento = params.get('pagamento');
   const valor = params.get('valor');
+  const user_id = params.get('user_id');
   if (pagamento === 'sucesso') {
     showToast(`✅ Pagamento de R$ ${valor} aprovado!`, 'ok');
+    if (user_id && valor) {
+      await sb.from('transacoes').insert({
+        user_id,
+        tipo: 'recarga',
+        creditos: 0,
+        valor: parseFloat(valor),
+        status: 'aprovado',
+      });
+    }
     window.history.replaceState({}, '', '/dashboard.html');
   } else if (pagamento === 'falhou') {
     showToast('❌ Pagamento não aprovado. Tente novamente.', 'err');
@@ -882,10 +892,6 @@ async function salvarConsultaDB(placa, tipo, status) {
     creditos_usados: 1,
   });
 }
-
-// ============================================================
-//  INIT
-// ============================================================
 (function init() {
   buildEstadosGrid();
   buildPacotes();
@@ -894,9 +900,12 @@ async function salvarConsultaDB(placa, tipo, status) {
   document.getElementById('stat-ok').textContent = stats.ok;
   document.getElementById('stat-crlv').textContent = stats.crlv;
   document.getElementById('stat-rest').textContent = stats.rest;
-  verificarRetornoPagamento();
-  carregarPerfil();
+  carregarPerfil().then(() => verificarRetornoPagamento());
 })();
+// ============================================================
+//  INIT
+// ============================================================
+
 </script>
 </body>
 </html>

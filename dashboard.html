@@ -194,17 +194,17 @@
           </div>
           <div class="field">
             <label>Tipo de Consulta</label>
-            <select id="tipo-rapida">
-              <option value="/consultar-placa-v2">Base Estadual</option>
-              <option value="/consultar-placa-nacional">Base Nacional</option>
-              <option value="/consultar-placa-v3">Placa V3 (Completa)</option>
-              <option value="/consultar-cautelar">Cautelar / Leilão</option>
-              <option value="/gravame">Gravame</option>
-              <option value="/consultar-debito">Débitos</option>
-              <option value="/consultar-placa-fipe">FIPE</option>
-              <option value="/proprietario-atual">Proprietário Atual</option>
-              <option value="/renajud">Renajud</option>
-              <option value="/licenciamento-bin">Licenciamento + BIN</option>
+           <select id="tipo-rapida">
+              <option value="/consultar-placa-v2">Base Estadual — R$ 5,00</option>
+              <option value="/consultar-placa-nacional">Base Nacional — R$ 5,00</option>
+              <option value="/consultar-placa-v3">Placa V3 (Completa) — R$ 12,00</option>
+              <option value="/consultar-cautelar">Cautelar / Leilão — R$ 29,90</option>
+              <option value="/gravame">Gravame — R$ 5,00</option>
+              <option value="/consultar-debito">Débitos — R$ 5,00</option>
+              <option value="/consultar-placa-fipe">FIPE — Grátis</option>
+              <option value="/proprietario-atual">Proprietário Atual — R$ 3,00</option>
+              <option value="/renajud">Renajud — R$ 7,00</option>
+              <option value="/licenciamento-bin">Licenciamento + BIN — R$ 5,00</option>
             </select>
           </div>
           <button class="btn-action" onclick="fazerConsulta('placa-rapida','tipo-rapida','res-rapida','rr-placa','rr-status','rr-grid','rr-json','rr-provedor')">🔍 Consultar</button>
@@ -241,20 +241,20 @@
       <div class="card-box">
         <h3>🔍 Consulta Veicular</h3>
         <div class="tab-group">
-          <button class="tab-btn active" onclick="selTab(this,'/consultar-placa-v2','placa')">Base Estadual</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-nacional','placa')">Base Nacional</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-v3','placa')">Placa V3</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-cautelar','placa')">Cautelar</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-chassi','chassi')">Chassi</button>
-          <button class="tab-btn" onclick="selTab(this,'/gravame','placa')">Gravame</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-debito','placa')">Débitos</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-fipe','placa')">FIPE</button>
-          <button class="tab-btn" onclick="selTab(this,'/proprietario-atual','placa')">Proprietário</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-historico-proprietario','placa')">Hist. Proprietário</button>
-          <button class="tab-btn" onclick="selTab(this,'/auto-quilometragem','placa')">Quilometragem</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-motor','placa')">Motor</button>
-          <button class="tab-btn" onclick="selTab(this,'/renajud','placa')">Renajud</button>
-          <button class="tab-btn" onclick="selTab(this,'/licenciamento-bin','placa')">Licenciamento</button>
+       <button class="tab-btn active" onclick="selTab(this,'/consultar-placa-v2','placa')">Base Estadual R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-nacional','placa')">Base Nacional R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-v3','placa')">Placa V3 R$12</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-cautelar','placa')">Cautelar R$29,90</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-chassi','chassi')">Chassi R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/gravame','placa')">Gravame R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-debito','placa')">Débitos R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-fipe','placa')">FIPE Grátis</button>
+          <button class="tab-btn" onclick="selTab(this,'/proprietario-atual','placa')">Proprietário R$3</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-historico-proprietario','placa')">Hist. Prop. R$7</button>
+          <button class="tab-btn" onclick="selTab(this,'/auto-quilometragem','placa')">Quilometragem R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/consultar-motor','placa')">Motor R$5</button>
+          <button class="tab-btn" onclick="selTab(this,'/renajud','placa')">Renajud R$7</button>
+          <button class="tab-btn" onclick="selTab(this,'/licenciamento-bin','placa')">Licenciamento R$5</button>
         </div>
         <div class="form-row">
           <div class="field" style="max-width:220px">
@@ -580,6 +580,7 @@ function buildEstadosGrid() {
   document.getElementById('estados-grid').innerHTML = Object.entries(CRLV_MAP).map(([uf, cfg]) => `
     <button class="estado-btn ${cfg.ag?'agendado':''}" onclick="selEstado('${uf}',this)">
       ${uf}${cfg.ag?'<span class="badge-ag">🕐</span>':''}
+      <div style="font-size:.72rem;color:var(--sky);font-weight:700;margin-top:2px">R$ ${(PRECOS_CRLV[uf]||15).toFixed(2)}</div>
     </button>`).join('');
 }
 

@@ -512,17 +512,25 @@ async function fazerConsulta(placaId, tipoId, resId, placaBadgeId, statusId, gri
     showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
   }
 }
-
 async function fazerConsultaFull() {
   const valor = document.getElementById('campo-consulta').value.trim();
   if (!valor || valor.length < 7) { showToast('⚠️ Preencha o campo corretamente', 'err'); return; }
 
+  const precoFull = getPreco(tipoEndpoint);
+  if (precoFull > 0) {
+    const ok = await temSaldoSuficiente(precoFull);
+    if (!ok) { showToast(`⚠️ Saldo insuficiente. Esta consulta custa R$ ${precoFull.toFixed(2)}`, 'err'); return; }
+  }
+
   mostrarLoading('Consultando base de dados...');
+
   try {
-    const resultado = await chamarAPI(tipoEndpoint, { [tipoCampo]: valor });
+   const resultado = await chamarAPI(tipoEndpoint, { [tipoCampo]: valor });
     esconderLoading();
 
-    salvarHistorico(valor, tipoEndpoint, resultado.provedor, detectarRestricao(resultado.data) ? 'alerta' : 'ok');
+    if (precoFull > 0) await descontarSaldo(precoFull);
+
+    salvarHistorico(valor, tipoEndpoint, resultado.provedor, detectarRestricao(resultado.data) ? 'alerta' : 'ok'); 
     atualizarStats(detectarRestricao(resultado.data));
 
     if (resultado.tipo === 'pdf') {
@@ -587,14 +595,20 @@ async function emitirCRLV() {
   const renavam = document.getElementById('crlv-renavam').value.trim();
   if (placa.length < 7) { showToast('⚠️ Placa inválida', 'err'); return; }
 
+  const precoCRLV = PRECOS_CRLV[estadoCRLV] || 15;
+  const ok = await temSaldoSuficiente(precoCRLV);
+  if (!ok) { showToast(`⚠️ Saldo insuficiente. CRLV ${estadoCRLV} custa R$ ${precoCRLV.toFixed(2)}`, 'err'); return; }
+
   const cfg = CRLV_MAP[estadoCRLV];
   const body = { placa };
   if (renavam) body.renavam = renavam;
 
   mostrarLoading(`Emitindo CRLV — ${estadoCRLV}...`);
+  
   try {
-    const resultado = await chamarAPI(cfg.ep, body);
+   const resultado = await chamarAPI(cfg.ep, body);
     esconderLoading();
+    await descontarSaldo(precoCRLV);
     stats.crlv++; salvarStats();
     document.getElementById('stat-crlv').textContent = stats.crlv;
 

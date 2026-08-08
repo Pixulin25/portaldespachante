@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal Despachante — Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,285 +13,202 @@
     :root {
       --navy:#0B1F3A; --blue:#1A4A8A; --sky:#2E86DE; --accent:#F4A733;
       --light:#EEF4FF; --white:#FFFFFF; --gray:#6B7A99; --text:#1C2B40;
-      --border:#D6E0F0; --green:#27AE60; --red:#E03D3D; --sidebar-w:240px;
+      --border:#E4E9F2; --green:#27AE60; --red:#E03D3D; --sidebar-w:250px;
     }
-    body { font-family:'Inter',sans-serif; background:#F4F7FB; color:var(--text); display:flex; min-height:100vh; }
-
-    /* SIDEBAR */
-    .sidebar { width:var(--sidebar-w); background:var(--navy); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:50; }
-    .sidebar-logo { padding:1.5rem 1.4rem 1.2rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; color:var(--white); border-bottom:1px solid rgba(255,255,255,0.08); }
-    .sidebar-logo span { color:var(--accent); }
-    .sidebar-nav { flex:1; padding:1.2rem 0; overflow-y:auto; }
-    .nav-group-label { font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); padding:.8rem 1.4rem .4rem; }
-    .nav-item { display:flex; align-items:center; gap:.75rem; padding:.72rem 1.4rem; cursor:pointer; color:rgba(255,255,255,0.6); font-size:.9rem; font-weight:500; transition:all .15s; border-left:3px solid transparent; text-decoration:none; }
-    .nav-item:hover { color:var(--white); background:rgba(255,255,255,0.06); }
-    .nav-item.active { color:var(--white); background:rgba(46,134,222,0.18); border-left-color:var(--sky); }
-    .nav-item .icon { font-size:1.1rem; width:20px; text-align:center; }
-    .sidebar-user { padding:1.2rem 1.4rem; border-top:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; gap:.75rem; }
-    .avatar { width:36px; height:36px; border-radius:50%; background:var(--sky); color:var(--white); font-weight:700; font-size:.9rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .user-info { flex:1; min-width:0; }
-    .user-name { font-size:.88rem; font-weight:600; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .user-role { font-size:.75rem; color:rgba(255,255,255,0.45); }
-
-    /* MAIN */
+    body { font-family:'Inter',sans-serif; background:#F7F9FC; color:var(--text); display:flex; min-height:100vh; font-size:14px; }
+    .sidebar { width:var(--sidebar-w); background:var(--white); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:50; }
+    .sidebar-logo { padding:1.4rem 1.4rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; color:var(--navy); display:flex; align-items:center; gap:.6rem; border-bottom:1px solid var(--border); }
+    .sidebar-logo-icon { width:38px; height:38px; background:var(--sky); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+    .sidebar-nav { flex:1; padding:1rem 0; overflow-y:auto; }
+    .nav-group-label { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sky); padding:1rem 1.3rem .5rem; }
+    .nav-item { display:flex; align-items:center; gap:.7rem; padding:.62rem 1.3rem; cursor:pointer; color:var(--text); font-size:.87rem; font-weight:500; transition:all .15s; border-left:3px solid transparent; text-decoration:none; }
+    .nav-item:hover { background:var(--light); }
+    .nav-item.active { color:var(--sky); background:var(--light); border-left-color:var(--sky); font-weight:700; }
+    .nav-item .icon { font-size:1rem; width:18px; text-align:center; }
     .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
-    .topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
-    .topbar-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; color:var(--navy); }
-    .topbar-right { display:flex; align-items:center; gap:1rem; }
-    .credits-pill { display:flex; align-items:center; gap:.5rem; background:var(--light); border:1px solid var(--border); padding:.45rem .9rem; border-radius:100px; font-size:.88rem; font-weight:600; color:var(--navy); }
-    .credits-pill .dot { width:8px; height:8px; background:var(--green); border-radius:50%; }
-
-    /* CONTENT */
+    .topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; height:68px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+    .topbar-title { display:flex; align-items:center; gap:.6rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; color:var(--navy); }
+    .topbar-title .menu-ic { color:var(--gray); font-size:1.2rem; cursor:pointer; }
+    .topbar-right { display:flex; align-items:center; gap:1.1rem; }
+    .bell { width:38px; height:38px; border-radius:50%; background:var(--light); display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; color:var(--sky); }
+    .topbar-user { display:flex; align-items:center; gap:.7rem; }
+    .avatar-top { width:38px; height:38px; border-radius:50%; background:var(--sky); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; }
+    .topbar-user-info .un { font-weight:700; font-size:.87rem; color:var(--navy); }
+    .topbar-user-info .us { font-size:.78rem; color:var(--gray); }
     .content { padding:2rem; flex:1; }
     .panel { display:none; }
     .panel.active { display:block; }
-
-    /* STATS */
-    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.2rem; margin-bottom:2rem; }
-    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:1.4rem 1.5rem; }
-    .stat-card .label { font-size:.8rem; color:var(--gray); font-weight:500; margin-bottom:.5rem; }
-    .stat-card .value { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:var(--navy); line-height:1; }
-    .stat-card .sub { font-size:.8rem; color:var(--gray); margin-top:.4rem; }
-    .stat-card .icon-wrap { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:.9rem; }
-    .ic-blue{background:#EEF4FF} .ic-green{background:#EAFAF1} .ic-orange{background:#FFF8EC} .ic-red{background:#FEF0F0}
-
-    /* FORM */
-    .card-box { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:2rem; margin-bottom:1.5rem; }
-    .card-box h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); margin-bottom:1.5rem; font-size:1.1rem; }
-    .form-row { display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end; }
-    .field { flex:1; min-width:150px; }
-    .field label { display:block; font-size:.82rem; font-weight:600; color:var(--text); margin-bottom:.4rem; }
-    .field input, .field select { width:100%; padding:.75rem 1rem; border:1.5px solid var(--border); border-radius:9px; font-size:.95rem; font-family:'Inter',sans-serif; color:var(--text); outline:none; background:var(--white); transition:border-color .2s; }
-    .field input:focus, .field select:focus { border-color:var(--sky); }
-    .placa-input { text-transform:uppercase; letter-spacing:.1em; font-weight:700 !important; font-size:1.05rem !important; }
-    .btn-action { background:var(--navy); color:var(--white); border:none; padding:.75rem 1.6rem; border-radius:9px; font-size:.93rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background .2s; white-space:nowrap; }
-    .btn-action:hover { background:var(--blue); }
-    .btn-action:disabled { opacity:.5; cursor:not-allowed; }
-    .btn-sky { background:var(--sky) !important; }
-    .btn-sky:hover { background:#1a70cc !important; }
-    .btn-outline { background:var(--white); color:var(--text); border:1.5px solid var(--border); padding:.6rem 1.2rem; border-radius:8px; font-size:.88rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; transition:border-color .2s; }
-    .btn-outline:hover { border-color:var(--sky); color:var(--sky); }
-
-    /* TABS */
-    .tab-group { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .tab-btn { padding:.5rem 1rem; border-radius:8px; border:1.5px solid var(--border); background:var(--white); font-size:.83rem; font-weight:600; color:var(--gray); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; }
-    .tab-btn.active { background:var(--navy); color:var(--white); border-color:var(--navy); }
-    .tab-btn:hover:not(.active) { border-color:var(--sky); color:var(--sky); }
-
-    /* RESULTADO */
-    .resultado { display:none; margin-top:1.5rem; border-top:2px solid var(--light); padding-top:1.5rem; }
+    .search-box { position:relative; margin-bottom:1.8rem; max-width:100%; }
+    .search-box input {
+      width:100%; padding:.9rem 1.1rem .9rem 2.9rem; border:1.5px solid var(--border);
+      border-radius:10px; font-size:.92rem; font-family:'Inter',sans-serif; color:var(--text);
+      outline:none; background:var(--white); transition:border-color .2s;
+    }
+    .search-box input:focus { border-color:var(--sky); }
+    .search-box .si { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--sky); font-size:1rem; }
+    .content h2 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; color:var(--navy); margin-bottom:1.2rem; }
+    .servicos-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; }
+    @media(max-width:1400px){ .servicos-grid{ grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:1000px){ .servicos-grid{ grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:640px){ .servicos-grid{ grid-template-columns:1fr;} }
+    .service-card {
+      background:var(--white); border:1px solid var(--border); border-radius:14px;
+      padding:1.3rem; display:flex; flex-direction:column; transition:box-shadow .2s, border-color .2s;
+    }
+    .service-card:hover { border-color:var(--sky); box-shadow:0 6px 20px rgba(26,74,138,0.08); }
+    .service-head { display:flex; align-items:flex-start; justify-content:space-between; gap:.6rem; margin-bottom:.7rem; }
+    .service-title-wrap { display:flex; align-items:center; gap:.6rem; }
+    .service-icon { width:38px; height:38px; background:var(--light); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; }
+    .service-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; color:var(--navy); line-height:1.25; }
+    .service-badge-new { font-size:.62rem; font-weight:700; color:var(--accent); background:#FFF6E6; padding:.12rem .4rem; border-radius:100px; margin-left:.3rem; vertical-align:middle; white-space:nowrap; }
+    .service-price { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; color:var(--sky); white-space:nowrap; }
+    .service-price.free { color:var(--green); }
+    .service-desc { font-size:.8rem; color:var(--gray); margin-bottom:.8rem; line-height:1.45; flex:1; }
+    .service-feats { list-style:none; margin-bottom:1rem; }
+    .service-feats li { font-size:.78rem; color:var(--text); display:flex; align-items:center; gap:.4rem; padding:.15rem 0; }
+    .service-feats li::before { content:'✓'; color:var(--sky); font-weight:700; }
+    .service-inputs { display:flex; flex-direction:column; gap:.6rem; margin-bottom:.8rem; }
+    .service-inputs label { display:block; font-size:.75rem; font-weight:600; color:var(--text); margin-bottom:.3rem; }
+    .service-inputs input, .service-inputs select {
+      width:100%; padding:.55rem .8rem; border:1.5px solid var(--border); border-radius:8px;
+      font-size:.85rem; font-family:'Inter',sans-serif; color:var(--text); outline:none; transition:border-color .2s;
+    }
+    .service-inputs input:focus, .service-inputs select:focus { border-color:var(--sky); }
+    .placa-input { text-transform:uppercase; letter-spacing:.06em; font-weight:700 !important; }
+    .btn-consultar {
+      background:var(--sky); color:var(--white); border:none; padding:.65rem 1rem;
+      border-radius:9px; font-size:.85rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;
+      transition:background .2s; width:100%;
+    }
+    .btn-consultar:hover { background:#1a70cc; }
+    .btn-consultar:disabled { opacity:.5; cursor:not-allowed; }
+    .resultado { display:none; margin-top:1rem; border-top:2px solid var(--light); padding-top:1rem; }
     .resultado.show { display:block; }
-    .resultado-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.2rem; flex-wrap:wrap; }
-    .placa-badge { background:var(--navy); color:var(--white); font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; padding:.4rem 1rem; border-radius:8px; letter-spacing:.12em; }
-    .provedor-badge { background:var(--light); color:var(--sky); font-size:.78rem; font-weight:700; padding:.3rem .8rem; border-radius:100px; border:1px solid var(--border); }
-    .status-badge { padding:.35rem .9rem; border-radius:100px; font-size:.82rem; font-weight:700; }
+    .resultado-header { display:flex; align-items:center; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; }
+    .placa-badge { background:var(--navy); color:var(--white); font-family:'Syne',sans-serif; font-weight:800; font-size:.85rem; padding:.3rem .7rem; border-radius:7px; letter-spacing:.08em; }
+    .provedor-badge { background:var(--light); color:var(--sky); font-size:.68rem; font-weight:700; padding:.2rem .6rem; border-radius:100px; border:1px solid var(--border); }
+    .status-badge { padding:.25rem .7rem; border-radius:100px; font-size:.7rem; font-weight:700; }
     .status-ok { background:#EAFAF1; color:var(--green); }
     .status-alert { background:#FEF0F0; color:var(--red); }
-    .res-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.8rem; }
-    .res-item { background:var(--light); border-radius:9px; padding:1rem; }
-    .res-item .rl { font-size:.75rem; color:var(--gray); font-weight:500; margin-bottom:.2rem; text-transform:uppercase; letter-spacing:.04em; }
-    .res-item .rv { font-size:.93rem; font-weight:600; color:var(--navy); word-break:break-word; }
-    .res-raw { background:#1e1e2e; color:#cdd6f4; border-radius:10px; padding:1.2rem; font-size:.78rem; font-family:monospace; overflow:auto; max-height:350px; margin-top:1rem; white-space:pre-wrap; display:none; }
+    .res-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:.5rem; }
+    .res-item { background:var(--light); border-radius:8px; padding:.6rem; }
+    .res-item .rl { font-size:.65rem; color:var(--gray); font-weight:500; margin-bottom:.1rem; text-transform:uppercase; }
+    .res-item .rv { font-size:.78rem; font-weight:600; color:var(--navy); word-break:break-word; }
+    .res-raw { background:#1e1e2e; color:#cdd6f4; border-radius:8px; padding:.8rem; font-size:.68rem; font-family:monospace; overflow:auto; max-height:250px; margin-top:.6rem; white-space:pre-wrap; display:none; }
     .res-raw.show { display:block; }
-    .res-actions { display:flex; gap:.8rem; margin-top:1.2rem; flex-wrap:wrap; }
-
-    /* TABELA */
-    .table-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-    .table-header { padding:1.2rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; }
-    .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); font-size:1rem; }
-    .table-search { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.85rem; font-family:'Inter',sans-serif; outline:none; width:200px; transition:border-color .2s; }
-    .table-search:focus { border-color:var(--sky); }
+    .res-actions { display:flex; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+    .btn-outline { background:var(--white); color:var(--text); border:1.5px solid var(--border); padding:.4rem .8rem; border-radius:7px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+    .btn-sky-sm { background:var(--sky); color:var(--white); border:none; padding:.4rem .8rem; border-radius:7px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.8rem; }
+    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.3rem; }
+    .stat-card .label { font-size:.75rem; color:var(--gray); font-weight:500; margin-bottom:.35rem; }
+    .stat-card .value { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--navy); line-height:1; }
+    .table-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-top:1.5rem; }
+    .table-header { padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; }
+    .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); font-size:.95rem; }
+    .table-search { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.82rem; font-family:'Inter',sans-serif; outline:none; width:200px; }
     table { width:100%; border-collapse:collapse; }
-    th { background:#F9FAFC; font-size:.78rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.05em; padding:.85rem 1.5rem; text-align:left; border-bottom:1px solid var(--border); }
-    td { padding:1rem 1.5rem; font-size:.88rem; border-bottom:1px solid #F0F4FA; }
+    th { background:#FAFBFD; font-size:.72rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.04em; padding:.75rem 1.3rem; text-align:left; border-bottom:1px solid var(--border); }
+    td { padding:.8rem 1.3rem; font-size:.83rem; border-bottom:1px solid #F0F4FA; }
     tr:last-child td { border-bottom:none; }
-    tr:hover td { background:#FAFBFF; }
-    .td-placa { font-weight:700; font-family:'Syne',sans-serif; letter-spacing:.08em; }
-    .tag { display:inline-block; padding:.25rem .7rem; border-radius:100px; font-size:.75rem; font-weight:700; }
+    .td-placa { font-weight:700; font-family:'Syne',sans-serif; letter-spacing:.05em; }
+    .tag { display:inline-block; padding:.2rem .6rem; border-radius:100px; font-size:.7rem; font-weight:700; }
     .tag-ok{background:#EAFAF1;color:var(--green)} .tag-pend{background:#FFF8EC;color:#C0822A}
-    .btn-dl { background:none; border:1px solid var(--border); border-radius:6px; padding:.3rem .7rem; font-size:.8rem; color:var(--sky); cursor:pointer; font-family:'Inter',sans-serif; }
-    .btn-dl:hover { background:var(--light); }
-
-    /* ESTADOS CRLV */
-    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:.6rem; margin-bottom:1.5rem; }
-    .estado-btn { padding:.6rem; border:1.5px solid var(--border); border-radius:9px; background:var(--white); font-size:.85rem; font-weight:600; color:var(--text); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; text-align:center; }
-    .estado-btn:hover { border-color:var(--sky); color:var(--sky); }
-    .estado-btn.sel { border-color:var(--sky); background:var(--light); color:var(--navy); }
-    .estado-btn.agendado { border-color:#F4A733; }
-    .badge-ag { font-size:.62rem; display:block; color:var(--accent); margin-top:2px; }
-
-    /* LOADING */
+    .vazio { text-align:center; padding:2.5rem; color:var(--gray); }
+    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(85px,1fr)); gap:.5rem; margin-bottom:1rem; }
+    .estado-btn { padding:.5rem .3rem; border:1.5px solid var(--border); border-radius:9px; background:var(--white); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; text-align:center; }
+    .estado-btn:hover { border-color:var(--sky); }
+    .estado-btn.sel { border-color:var(--sky); background:var(--light); }
+    .estado-uf { font-size:.8rem; font-weight:700; color:var(--text); }
+    .estado-preco { font-size:.68rem; font-weight:700; color:var(--sky); margin-top:2px; }
+    .badge-ag { font-size:.58rem; display:block; color:var(--accent); }
+    .credits-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .credit-pack { border:2px solid var(--border); border-radius:14px; padding:1.3rem 1rem; text-align:center; cursor:pointer; transition:all .2s; background:var(--white); position:relative; }
+    .credit-pack:hover { border-color:var(--sky); transform:translateY(-3px); }
+    .credit-pack.popular { border-color:var(--sky); background:var(--light); }
+    .pack-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:var(--sky); color:white; font-size:.65rem; font-weight:700; padding:.2rem .6rem; border-radius:100px; white-space:nowrap; }
+    .pack-valor { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--navy); }
+    .pack-sub { font-size:.75rem; color:var(--gray); margin-top:.35rem; }
+    .btn-recarregar { margin-top:.9rem; width:100%; background:var(--sky); color:white; border:none; padding:.55rem; border-radius:8px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; font-size:.82rem; }
     .loading-overlay { position:fixed; inset:0; background:rgba(11,31,58,0.75); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:400; opacity:0; pointer-events:none; transition:opacity .3s; }
     .loading-overlay.show { opacity:1; pointer-events:all; }
     .spinner-big { width:52px; height:52px; border:4px solid rgba(255,255,255,0.2); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:1rem; }
     .loading-overlay p { color:var(--white); font-size:.95rem; font-weight:500; }
     @keyframes spin { to { transform:rotate(360deg); } }
-
-    /* TOAST */
-    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:var(--white); padding:.85rem 1.6rem; border-radius:10px; font-size:.9rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,0.25); transition:transform .35s cubic-bezier(.34,1.56,.64,1); z-index:300; white-space:nowrap; }
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:var(--white); padding:.85rem 1.6rem; border-radius:10px; font-size:.88rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,0.25); transition:transform .35s cubic-bezier(.34,1.56,.64,1); z-index:300; white-space:nowrap; }
     .toast.show { transform:translateX(-50%) translateY(0); }
     .toast.ok { border-left:4px solid var(--green); }
     .toast.err { border-left:4px solid var(--red); }
-
-    /* VAZIO */
-    .vazio { text-align:center; padding:3rem; color:var(--gray); }
-    .vazio .vi { font-size:2.5rem; margin-bottom:.8rem; }
-
-    @media(max-width:768px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .topbar{padding:0 1rem} .content{padding:1rem} }
+    @media(max-width:900px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .topbar{padding:0 1rem} .content{padding:1.2rem} }
   </style>
 </head>
 <body>
-
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sidebar-logo">Portal<span>Despachante</span></div>
-  <nav class="sidebar-nav">
-    <div class="nav-group-label">Principal</div>
-    <a class="nav-item active" onclick="showPanel('inicio',this)"><span class="icon">🏠</span> Início</a>
-    <a class="nav-item" onclick="showPanel('consulta',this)"><span class="icon">🔍</span> Consulta Veicular</a>
-    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> CRLV-e Digital</a>
-    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
-    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico</a>
-    <div class="nav-group-label">Conta</div>
-    <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Comprar Créditos</a>
-  </nav>
-  <div class="sidebar-user">
-    <div class="avatar" id="avatar-initials">U</div>
-    <div class="user-info">
-      <div class="user-name" id="user-name">Carregando...</div>
-      <div class="user-role" id="user-creditos">0 créditos</div>
-    </div>
-    <button onclick="fazerLogout()" title="Sair" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:1.1rem;padding:4px;transition:color .2s;" onmouseover="this.style.color='#E03D3D'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">⏻</button>
+  <aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">🚀</div>
+    Portal Despachante
   </div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Minha Conta</div>
+    <a class="nav-item" onclick="showPanel('perfil',this)"><span class="icon">👤</span> Minha Conta</a>
+
+    <div class="nav-group-label">Consultas & Pedidos</div>
+    <a class="nav-item active" onclick="showPanel('inicio',this)"><span class="icon">🔍</span> Serviços Disponíveis</a>
+    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Pedidos CRLV-e</a>
+    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
+    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico de Consultas</a>
+
+    <div class="nav-group-label">Financeiro</div>
+    <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Recarga de Saldo</a>
+  </nav>
 </aside>
 
-<!-- MAIN -->
 <div class="main">
   <header class="topbar">
-    <div class="topbar-title" id="topbar-title">Início</div>
+    <div class="topbar-title"><span class="menu-ic">☰</span> Dashboard</div>
     <div class="topbar-right">
-      <div class="credits-pill"><div class="dot"></div><span id="saldo-label">0 consultas hoje</span></div>
+      <div class="bell" onclick="showToast('Sem novas notificações','ok')">🔔</div>
+      <div class="topbar-user">
+        <div class="avatar-top" id="avatar-initials">U</div>
+        <div class="topbar-user-info">
+          <div class="un" id="user-name">Carregando...</div>
+          <div class="us" id="user-creditos">Saldo: R$ 0,00</div>
+        </div>
+        <button onclick="fazerLogout()" title="Sair" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:1rem;padding:4px;margin-left:.3rem;">⏻</button>
+      </div>
     </div>
   </header>
 
   <div class="content">
 
-    <!-- INÍCIO -->
     <div class="panel active" id="panel-inicio">
       <div class="stats-grid">
-        <div class="stat-card"><div class="icon-wrap ic-blue">🔍</div><div class="label">Consultas hoje</div><div class="value" id="stat-hoje">0</div></div>
-        <div class="stat-card"><div class="icon-wrap ic-green">✅</div><div class="label">Sem restrições</div><div class="value" id="stat-ok">0</div></div>
-        <div class="stat-card"><div class="icon-wrap ic-orange">📄</div><div class="label">CRLV emitidos</div><div class="value" id="stat-crlv">0</div></div>
-        <div class="stat-card"><div class="icon-wrap ic-red">⚠️</div><div class="label">Com restrições</div><div class="value" id="stat-rest">0</div></div>
+        <div class="stat-card"><div class="label">🔍 Consultas hoje</div><div class="value" id="stat-hoje">0</div></div>
+        <div class="stat-card"><div class="label">✅ Sem restrições</div><div class="value" id="stat-ok">0</div></div>
+        <div class="stat-card"><div class="label">📄 CRLV emitidos</div><div class="value" id="stat-crlv">0</div></div>
+        <div class="stat-card"><div class="label">⚠️ Com restrições</div><div class="value" id="stat-rest">0</div></div>
       </div>
 
-      <!-- CONSULTA RÁPIDA -->
-      <div class="card-box">
-        <h3>⚡ Consulta Rápida</h3>
-        <div class="form-row">
-          <div class="field" style="max-width:180px">
-            <label>Placa do Veículo</label>
-            <input class="placa-input" id="placa-rapida" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
-          </div>
-          <div class="field">
-            <label>Tipo de Consulta</label>
-           <select id="tipo-rapida">
-              <option value="/consultar-placa-v2">Base Estadual — R$ 5,00</option>
-              <option value="/consultar-placa-nacional">Base Nacional — R$ 5,00</option>
-              <option value="/consultar-placa-v3">Placa V3 (Completa) — R$ 12,00</option>
-              <option value="/consultar-cautelar">Cautelar / Leilão — R$ 29,90</option>
-              <option value="/gravame">Gravame — R$ 5,00</option>
-              <option value="/consultar-debito">Débitos — R$ 5,00</option>
-              <option value="/consultar-placa-fipe">FIPE — Grátis</option>
-              <option value="/proprietario-atual">Proprietário Atual — R$ 3,00</option>
-              <option value="/renajud">Renajud — R$ 7,00</option>
-              <option value="/licenciamento-bin">Licenciamento + BIN — R$ 5,00</option>
-            </select>
-          </div>
-          <button class="btn-action" onclick="fazerConsulta('placa-rapida','tipo-rapida','res-rapida','rr-placa','rr-status','rr-grid','rr-json','rr-provedor')">🔍 Consultar</button>
-        </div>
-        <div class="resultado" id="res-rapida">
-          <div class="resultado-header">
-            <div class="placa-badge" id="rr-placa">—</div>
-            <div class="status-badge status-ok" id="rr-status">—</div>
-            <div class="provedor-badge" id="rr-provedor">—</div>
-          </div>
-          <div class="res-grid" id="rr-grid"></div>
-          <div class="res-actions">
-            <button class="btn-action btn-sky" id="rr-btn-pdf" onclick="showToast('Gerando PDF...','ok')">📥 Baixar PDF</button>
-            <button class="btn-outline" onclick="toggleJSON('rr-json')">{ } Ver JSON</button>
-            <button class="btn-outline" onclick="limparResultado('res-rapida','placa-rapida')">Nova Consulta</button>
-          </div>
-          <pre class="res-raw" id="rr-json"></pre>
-        </div>
+      <div class="search-box">
+        <span class="si">🔎</span>
+        <input type="text" id="search-servicos" placeholder="Pesquise sua consulta rapidamente..." oninput="filtrarServicos(this.value)" />
       </div>
-
-      <!-- RECENTES -->
-      <div class="table-card">
-        <div class="table-header">
-          <h3>Últimas Consultas</h3>
-          <a onclick="showPanel('historico',null)" style="font-size:.85rem;color:var(--sky);cursor:pointer;font-weight:600;">Ver todas →</a>
-        </div>
-        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Status</th></tr></thead>
-        <tbody id="tbody-recente"></tbody></table>
-      </div>
+      <h2>Serviços Disponíveis</h2>
+      <div class="servicos-grid" id="servicos-lista"></div>
     </div>
 
-    <!-- CONSULTA VEICULAR -->
-    <div class="panel" id="panel-consulta">
-      <div class="card-box">
-        <h3>🔍 Consulta Veicular</h3>
-        <div class="tab-group">
-       <button class="tab-btn active" onclick="selTab(this,'/consultar-placa-v2','placa')">Base Estadual R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-nacional','placa')">Base Nacional R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-v3','placa')">Placa V3 R$12</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-cautelar','placa')">Cautelar R$29,90</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-chassi','chassi')">Chassi R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/gravame','placa')">Gravame R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-debito','placa')">Débitos R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-placa-fipe','placa')">FIPE Grátis</button>
-          <button class="tab-btn" onclick="selTab(this,'/proprietario-atual','placa')">Proprietário R$3</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-historico-proprietario','placa')">Hist. Prop. R$7</button>
-          <button class="tab-btn" onclick="selTab(this,'/auto-quilometragem','placa')">Quilometragem R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/consultar-motor','placa')">Motor R$5</button>
-          <button class="tab-btn" onclick="selTab(this,'/renajud','placa')">Renajud R$7</button>
-          <button class="tab-btn" onclick="selTab(this,'/licenciamento-bin','placa')">Licenciamento R$5</button>
-        </div>
-        <div class="form-row">
-          <div class="field" style="max-width:220px">
-            <label id="label-campo">Placa</label>
-            <input class="placa-input" id="campo-consulta" placeholder="ABC1D23" maxlength="17" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
-          </div>
-          <button class="btn-action" onclick="fazerConsultaFull()">🔍 Consultar</button>
-        </div>
-        <div class="resultado" id="res-full">
-          <div class="resultado-header">
-            <div class="placa-badge" id="rf-placa">—</div>
-            <div class="status-badge status-ok" id="rf-status">—</div>
-            <div class="provedor-badge" id="rf-provedor">—</div>
-          </div>
-          <div class="res-grid" id="rf-grid"></div>
-          <div class="res-actions">
-            <button class="btn-action btn-sky" id="rf-btn-pdf">📥 Baixar PDF</button>
-            <button class="btn-outline" onclick="toggleJSON('rf-json')">{ } Ver JSON</button>
-            <button class="btn-outline" onclick="limparResultado('res-full','campo-consulta')">Nova Consulta</button>
-          </div>
-          <pre class="res-raw" id="rf-json"></pre>
-        </div>
-      </div>
-    </div>
-
-    <!-- CRLV -->
     <div class="panel" id="panel-crlv">
-      <div class="card-box">
-        <h3>📄 Emitir CRLV-e Digital</h3>
-        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Selecione o estado e informe a placa. Estados com 🕐 são agendados e podem demorar alguns minutos.</p>
-        <div class="estados-grid" id="estados-grid"></div>
-        <div class="form-row">
-          <div class="field" style="max-width:180px"><label>Placa</label><input class="placa-input" id="crlv-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
-          <div class="field" style="max-width:200px"><label>Renavam (se exigido)</label><input type="text" id="crlv-renavam" placeholder="00000000000" maxlength="11" /></div>
-          <button class="btn-action" onclick="emitirCRLV()">📄 Emitir CRLV</button>
+      <div class="service-card" style="max-width:640px">
+        <div class="service-head">
+          <div class="service-title-wrap"><div class="service-icon">📄</div><span class="service-title">Emitir CRLV-e Digital</span></div>
         </div>
+        <p class="service-desc">Selecione o estado — preços variam conforme a tabela oficial. Estados com 🕐 são agendados.</p>
+        <div class="estados-grid" id="estados-grid"></div>
+        <div class="service-inputs">
+          <div><label>Placa</label><input class="placa-input" id="crlv-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
+          <div><label>Renavam (se exigido)</label><input type="text" id="crlv-renavam" placeholder="00000000000" maxlength="11" /></div>
+        </div>
+        <button class="btn-consultar" onclick="emitirCRLV()">📄 Emitir CRLV</button>
         <div class="resultado" id="res-crlv">
           <div class="resultado-header">
             <div class="placa-badge" id="rc-placa">—</div>
@@ -299,101 +217,257 @@
           </div>
           <div class="res-grid" id="rc-grid"></div>
           <div class="res-actions">
-            <button class="btn-action btn-sky" id="btn-dl-crlv">📥 Baixar PDF</button>
+            <button class="btn-sky-sm" id="btn-dl-crlv">📥 Baixar PDF</button>
             <button class="btn-outline" onclick="limparResultado('res-crlv','crlv-placa')">Nova Emissão</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- COMUNICADO -->
     <div class="panel" id="panel-comunicado">
-      <div class="card-box">
-        <h3>📝 Comunicado de Venda</h3>
-        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Registre a transferência de responsabilidade do veículo.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.2rem">
-          <div class="field"><label>Placa</label><input class="placa-input" id="com-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
-          <div class="field"><label>Renavam</label><input type="text" id="com-renavam" placeholder="00000000000" maxlength="11" /></div>
-          <div class="field"><label>Nome do Comprador</label><input type="text" id="com-comprador" placeholder="Nome completo" /></div>
-          <div class="field"><label>CPF/CNPJ do Comprador</label><input type="text" id="com-doc" placeholder="000.000.000-00" /></div>
-          <div class="field"><label>Data da Venda</label><input type="date" id="com-data" /></div>
-          <div class="field"><label>Valor de Venda (R$)</label><input type="number" id="com-valor" placeholder="0,00" /></div>
+      <div class="service-card" style="max-width:640px">
+        <div class="service-head">
+          <div class="service-title-wrap"><div class="service-icon">📝</div><span class="service-title">Comunicado de Venda</span></div>
+          <div class="service-price">R$ 30,00</div>
         </div>
-        <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-          <button class="btn-action" onclick="acaoComunicado('inserir')">📝 Inserir</button>
-          <button class="btn-action btn-sky" onclick="acaoComunicado('transmitir')">📤 Transmitir</button>
+        <p class="service-desc">Registre a transferência de responsabilidade do veículo junto ao Detran.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1rem">
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Placa</label><input class="placa-input" id="com-placa" placeholder="ABC1D23" maxlength="8" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Renavam</label><input type="text" id="com-renavam" placeholder="00000000000" maxlength="11" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Nome do Comprador</label><input type="text" id="com-comprador" placeholder="Nome completo" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">CPF/CNPJ</label><input type="text" id="com-doc" placeholder="000.000.000-00" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Data da Venda</label><input type="date" id="com-data" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Valor de Venda (R$)</label><input type="number" id="com-valor" placeholder="0,00" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
         </div>
-        <div class="resultado" id="res-comunicado" style="margin-top:1.5rem">
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn-consultar" style="width:auto;flex:1" onclick="acaoComunicado('inserir')">📝 Inserir — R$ 5,00</button>
+          <button class="btn-consultar" style="width:auto;flex:1;background:var(--navy)" onclick="acaoComunicado('transmitir')">📤 Transmitir — R$ 30,00</button>
+        </div>
+        <div class="resultado" id="res-comunicado">
           <div class="res-grid" id="rcom-grid"></div>
           <pre class="res-raw show" id="rcom-json" style="margin-top:1rem"></pre>
         </div>
       </div>
     </div>
 
-    <!-- HISTÓRICO -->
     <div class="panel" id="panel-historico">
-      <div class="table-card">
+      <div class="table-card" style="margin-top:0">
         <div class="table-header">
           <h3>Histórico de Consultas</h3>
           <input class="table-search" placeholder="Buscar placa..." oninput="filtrarHistorico(this.value)" />
         </div>
-        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Provedor</th><th>Status</th></tr></thead>
+        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Valor</th><th>Status</th></tr></thead>
         <tbody id="tbody-historico"></tbody></table>
-        <div id="historico-vazio" class="vazio" style="display:none"><div class="vi">📋</div><p>Nenhuma consulta realizada ainda.</p></div>
+        <div id="historico-vazio" class="vazio" style="display:none"><div style="font-size:2rem;margin-bottom:.6rem">📋</div><p>Nenhuma consulta realizada ainda.</p></div>
       </div>
     </div>
 
-    <!-- CRÉDITOS -->
     <div class="panel" id="panel-creditos">
-      <div class="card-box">
-        <h3>💳 Adicionar Saldo</h3>
-        <p style="color:var(--gray);font-size:.88rem;margin-bottom:1.5rem;">Escolha o valor desejado. Pagamento via PIX, cartão ou boleto pelo Mercado Pago.</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem" id="pacotes-grid"></div>
-        <div id="mp-loading" style="display:none;text-align:center;padding:1.5rem;color:var(--gray)">
-          <div style="font-size:1.5rem;margin-bottom:.5rem">⏳</div>
-          <p>Redirecionando para o Mercado Pago...</p>
-        </div>
+      <h2>💳 Recarga de Saldo</h2>
+      <p style="color:var(--gray);font-size:.85rem;margin-bottom:1.5rem;margin-top:-.8rem">Escolha o valor. Pagamento via PIX, cartão ou boleto pelo Mercado Pago.</p>
+      <div class="credits-grid" id="pacotes-grid"></div>
+      <div id="mp-loading" style="display:none;text-align:center;padding:1.5rem;color:var(--gray)">
+        <div style="font-size:1.5rem;margin-bottom:.5rem">⏳</div><p>Redirecionando para o Mercado Pago...</p>
       </div>
-
-      <!-- HISTÓRICO DE RECARGAS -->
-      <div class="table-card" style="margin-top:1.5rem">
+      <div class="table-card">
         <div class="table-header"><h3>Histórico de Recargas</h3></div>
-        <table>
-          <thead><tr><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
-          <tbody id="tbody-recargas">
-            <tr><td colspan="3" style="text-align:center;color:var(--gray);padding:2rem">Nenhuma recarga ainda</td></tr>
-          </tbody>
-        </table>
+        <table><thead><tr><th>Data</th><th>Valor</th><th>Status</th></tr></thead>
+        <tbody id="tbody-recargas"><tr><td colspan="3" style="text-align:center;color:var(--gray);padding:2rem">Nenhuma recarga ainda</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-perfil">
+      <div class="service-card" style="max-width:520px">
+        <div class="service-title-wrap" style="margin-bottom:1.2rem"><div class="service-icon">👤</div><span class="service-title">Minha Conta</span></div>
+        <div style="display:grid;gap:.9rem">
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Nome</label><input id="perfil-nome" style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">E-mail</label><input id="perfil-email" disabled style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;background:#F7F9FC;" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Saldo Atual</label><div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;color:var(--sky)" id="perfil-saldo">R$ 0,00</div></div>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loading"><div class="spinner-big"></div><p id="loading-msg">Consultando...</p></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ============================================================
-//  ESTADO
-// ============================================================
-let tipoEndpoint = '/consultar-placa-v2';
-let tipoCampo = 'placa';
-let estadoCRLV = '';
-let historico = JSON.parse(localStorage.getItem('pd_historico') || '[]');
-let stats = JSON.parse(localStorage.getItem('pd_stats') || '{"hoje":0,"ok":0,"crlv":0,"rest":0}');
+const SERVICOS = [
+  { id:'estadual',  icon:'📍', nome:'Base Estadual', preco:5.00, endpoint:'/consultar-placa-v2', campo:'placa',
+    desc:'Exibe os dados do veículo registrados no estado completo.', feats:['Débitos de licenciamento','IPVA e restrições','Gravame e emplacamento'] },
+  { id:'nacional',  icon:'🌎', nome:'Base Nacional', preco:5.00, endpoint:'/consultar-placa-nacional', campo:'placa',
+    desc:'Base oficial do DENATRAN com informações consolidadas.', feats:['Dados cadastrais','Restrições e emplacamento','Identificador de chassi'] },
+  { id:'completa',  icon:'📋', nome:'Consulta Completa', preco:12.00, endpoint:'/consultar-placa-v3', campo:'placa',
+    desc:'Laudo veicular completo: BIN/RF, restrições, gravame, débitos, proprietários, KM, RENAJUD, multas, recall e FIPE.', feats:['Restrições e gravame','Proprietários, KM e FIPE','Multas e RENAJUD'] },
+  { id:'cautelar',  icon:'🛡️', nome:'Consulta Cautelar', preco:29.90, endpoint:'/consultar-cautelar', campo:'placa',
+    desc:'BIN Estadual, Proprietário atual, Leilão simples + Leilão completo com score.', feats:['BIN Estadual','Proprietário atual','Leilão completo com score'] },
+  { id:'gravame',   icon:'🔒', nome:'Consulta Gravame', preco:5.00, endpoint:'/gravame', campo:'placa',
+    desc:'Através da placa, verifique se há algum gravame registrado no veículo.', feats:['Consulta via placa','Verificação de gravame','Detalhes completos'] },
+  { id:'debito',    icon:'💵', nome:'Débito + Boleto', preco:5.00, endpoint:'/consultar-debito', campo:'placa',
+    desc:'Consulta de débitos veiculares com guia/boleto em PDF, quando disponível pelo estado.', feats:['Débitos por placa','Guia/boleto quando disponível','PDF automático'] },
+  { id:'fipe',      icon:'📈', nome:'Placa + FIPE', preco:0, endpoint:'/consultar-placa-fipe', campo:'placa',
+    desc:'Relatório completo com informações da placa e valor FIPE.', feats:['Dados da placa','Valor FIPE atualizado','Relatório completo'] },
+  { id:'proprietario', icon:'👤', nome:'Consulta Rápida por Placa', preco:3.00, endpoint:'/proprietario-atual', campo:'placa',
+    desc:'Informa o proprietário atual do veículo com restrições.', feats:['Consulta via placa','Proprietário atual','Restrições'] },
+  { id:'histprop',  icon:'🕓', nome:'Histórico de Proprietários', preco:7.00, endpoint:'/consultar-historico-proprietario', campo:'placa', novo:true,
+    desc:'Consulta do histórico de proprietário com retorno em PDF.', feats:['Consulta via placa','PDF imediato','Download direto'] },
+  { id:'km',        icon:'📏', nome:'Auto Quilometragem', preco:5.00, endpoint:'/auto-quilometragem', campo:'placa',
+    desc:'Consulta de quilometragem do veículo com retorno em PDF.', feats:['Consulta via placa','PDF imediato','Download direto'] },
+  { id:'motor',     icon:'⚙️', nome:'Consultar Motor', preco:5.00, endpoint:'/consultar-motor', campo:'placa', novo:true,
+    desc:'Consulta pelo número do motor com retorno em PDF.', feats:['PDF imediato','Consulta por motor','Download direto'] },
+  { id:'renajud',   icon:'🗄️', nome:'Consulta Renajud', preco:7.00, endpoint:'/renajud', campo:'placa',
+    desc:'CSV, RENAINF, RENAJUD, RECALL, BIN, Proprietário.', feats:['Consulta via placa','Dados completos','Múltiplas bases'] },
+  { id:'licenciamento', icon:'📅', nome:'Licenciamento + BIN', preco:5.00, endpoint:'/licenciamento-bin', campo:'placa',
+    desc:'Dados cadastrais, restrições, proprietário atual, Renajud, licenciamento pago.', feats:['Dados cadastrais','Restrições','Licenciamento pago'] },
+  { id:'chassi',    icon:'🔢', nome:'Consulta por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', novo:true,
+    desc:'Consulta pelo chassi (17 caracteres) com retorno em PDF.', feats:['PDF imediato','Consulta via chassi','Download direto'] },
+  { id:'leilaofoto',icon:'📷', nome:'Foto Leilão', preco:9.90, endpoint:'/consultar-foto-leilao', campo:'placa',
+    desc:'Retorna imagens do veículo em leilão, quando disponíveis.', feats:['Consulta via placa','Retorno em PDF','Download direto'] },
+  { id:'spc',       icon:'💳', nome:'Consulta SPC / CRED MAX', preco:9.99, endpoint:'/consultar-spc', campo:'placa', novo:true,
+    desc:'Pendências financeiras, CCF, protesto, ação judicial.', feats:['CPF/CNPJ','Pendências financeiras','Protesto e ações judiciais'] },
+  { id:'crv',       icon:'🔐', nome:'Código de Segurança PDF', preco:10.00, endpoint:'/codigo-seguranca-crv', campo:'placa',
+    desc:'Através da placa, retorna o CRV Digital completo.', feats:['Consulta via placa','CRV Digital','Documento válido'] },
+  { id:'crvv2',     icon:'🔐', nome:'Código de Segurança PDF V2', preco:24.90, endpoint:'/codigo-seguranca-crv-v2', campo:'placa', novo:true,
+    desc:'Nova versão do código de segurança PDF.', feats:['Consulta via placa','CRV Digital V2','Recursos ampliados'] },
+  { id:'crvnum',    icon:'📄', nome:'Número CRV Digital', preco:24.90, endpoint:'/placa-crv', campo:'placa', novo:true,
+    desc:'Consulta via placa com retorno em PDF.', feats:['PDF imediato','Consulta via placa','Download direto'] },
+  { id:'crvpi',     icon:'📄', nome:'Consultar CRV PI', preco:10.00, endpoint:'/consultar-crv-pi', campo:'placa',
+    desc:'Consulta de CRV específica do estado do Piauí.', feats:['Consulta via placa','Documento válido','PDF automático'] },
+  { id:'crvvalid',  icon:'✅', nome:'Verifica Autenticidade CRV', preco:0, endpoint:'/validacao-crv', campo:'placa',
+    desc:'Verifique se o CRV é válido gratuitamente.', feats:['Validação CRV','Verificação gratuita','Confirmação de autenticidade'] },
+  { id:'atpvnum',   icon:'📄', nome:'Número ATPV-E', preco:99.90, endpoint:'/numero-atpv-e', campo:'placa',
+    desc:'Através da placa, retorna o Número do ATPV-E em PDF.', feats:['Consulta via placa','PDF','Número ATPV-E'] },
+  { id:'atpvreem',  icon:'📄', nome:'Reemissão ATPV-E', preco:30.00, endpoint:'/reemissao-atpv-e-pdf', campo:'placa',
+    desc:'Através do chassi, retorna ATPV. Não pode ter comunicado de venda.', feats:['Consulta via chassi','2ª via ATPV','Documento digital'] },
+  { id:'obito',     icon:'⚰️', nome:'Consulta Óbito Placa', preco:5.00, endpoint:'/consultar-foto-leilao', campo:'placa',
+    desc:'Consulta de óbito vinculada à placa do veículo, com retorno em PDF.', feats:['Consulta por placa','Dados de óbito','PDF automático'] },
+  { id:'leilaosimples', icon:'🔨', nome:'Consulta Leilão Simples', preco:9.99, endpoint:'/consultar-cautelar', campo:'placa',
+    desc:'Verificação de informações de leilão do veículo.', feats:['Consulta via placa','Dados de leilão','Histórico completo'] },
+  { id:'frota',     icon:'🚚', nome:'Consulta Frota CPF/CNPJ', preco:7.50, endpoint:'/consultar-placa-v2', campo:'placa',
+    desc:'Consulte a frota de veículos vinculada a um CPF ou CNPJ.', feats:['Consulta por CPF ou CNPJ','Relatório de frota em PDF','Resposta imediata'] },
+  { id:'comunicadocompleto', icon:'📋', nome:'Consulta Comunicado de Venda', preco:5.00, endpoint:'/comunicado-venda/inserir', campo:'placa', novo:true,
+    desc:'Consulte se existe comunicado de venda.', feats:['Verificação de status','Informações detalhadas','Histórico completo'] },
+  { id:'procuracao', icon:'📃', nome:'Procuração Veicular', preco:0, endpoint:'/consultar-placa-v2', campo:'placa',
+    desc:'Gere procuração veicular em PDF com dados do outorgante, procurador e veículo.', feats:['Preenchimento com CEP','Download imediato em PDF','Sem custo de consulta'] },
+  { id:'debitogratis', icon:'💰', nome:'Consulta Débito', preco:0, endpoint:'/consultar-debito', campo:'placa',
+    desc:'Consulta de débitos veiculares por placa.', feats:['Consulta via placa','Relatório de débitos','PDF automático'] },
+  { id:'consultarapidachassi', icon:'🔍', nome:'Consulta Rápida por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi',
+    desc:'Consulta pelo chassi com retorno rápido em PDF.', feats:['PDF imediato','Consulta via chassi','Download direto'] },
+];
 
-// Resetar stats diariamente
-const hoje = new Date().toDateString();
-if (localStorage.getItem('pd_data') !== hoje) {
-  stats = { hoje:0, ok:0, crlv:0, rest:0 };
-  localStorage.setItem('pd_data', hoje);
+function renderServicos(lista, containerId) {
+  const el = document.getElementById(containerId);
+  if (!lista.length) { el.innerHTML = '<p style="color:var(--gray);text-align:center;padding:2rem;grid-column:1/-1">Nenhum serviço encontrado.</p>'; return; }
+  el.innerHTML = lista.map(s => `
+    <div class="service-card">
+      <div class="service-head">
+        <div class="service-title-wrap">
+          <div class="service-icon">${s.icon}</div>
+          <span class="service-title">${s.nome}${s.novo ? '<span class="service-badge-new">NOVO</span>' : ''}</span>
+        </div>
+      </div>
+      <div class="service-price ${s.preco === 0 ? 'free' : ''}" style="margin-bottom:.5rem">${s.preco === 0 ? 'Grátis' : 'R$ ' + s.preco.toFixed(2).replace('.',',')}</div>
+      <p class="service-desc">${s.desc}</p>
+      <ul class="service-feats">${s.feats.map(f => `<li>${f}</li>`).join('')}</ul>
+      <div class="service-inputs">
+        <div>
+          <label>${s.campo === 'chassi' ? 'Chassi' : 'Placa'}</label>
+          <input class="placa-input" id="input-${s.id}" placeholder="${s.campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23'}" maxlength="${s.campo === 'chassi' ? 17 : 8}" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
+        </div>
+      </div>
+      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
+      <div class="resultado" id="res-${s.id}">
+        <div class="resultado-header">
+          <div class="placa-badge" id="rb-${s.id}">—</div>
+          <div class="status-badge status-ok" id="rs-${s.id}">—</div>
+          <div class="provedor-badge" id="rp-${s.id}">—</div>
+        </div>
+        <div class="res-grid" id="rg-${s.id}"></div>
+        <div class="res-actions">
+          <button class="btn-outline" onclick="toggleJSON('rj-${s.id}')">{ } JSON</button>
+          <button class="btn-outline" onclick="limparResultado('res-${s.id}','input-${s.id}')">Nova</button>
+        </div>
+        <pre class="res-raw" id="rj-${s.id}"></pre>
+      </div>
+    </div>
+  `).join('');
 }
 
-// ============================================================
-//  API
-// ============================================================
+function filtrarServicos(q) {
+  const f = SERVICOS.filter(s => s.nome.toLowerCase().includes(q.toLowerCase()));
+  renderServicos(f, 'servicos-lista');
+}
+
+async function consultarServico(id) {
+  const s = SERVICOS.find(x => x.id === id);
+  const valor = document.getElementById(`input-${id}`).value.trim();
+  if (valor.length < 7) { showToast('⚠️ Valor inválido — mínimo 7 caracteres', 'err'); return; }
+
+  if (s.preco > 0) {
+    const ok = await temSaldoSuficiente(s.preco);
+    if (!ok) { showToast(`⚠️ Saldo insuficiente. Esta consulta custa R$ ${s.preco.toFixed(2)}`, 'err'); return; }
+  }
+
+  mostrarLoading(`Consultando ${s.nome}...`);
+  try {
+    const resultado = await chamarAPI(s.endpoint, { [s.campo]: valor });
+    esconderLoading();
+
+    if (s.preco > 0) await descontarSaldo(s.preco);
+
+    salvarHistorico(valor, s.nome, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok', s.preco);
+    atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));
+
+    if (resultado.tipo === 'pdf') {
+      baixarBlob(resultado.blob, `${s.id}-${valor}.pdf`);
+      showToast('✅ PDF baixado com sucesso!', 'ok');
+      return;
+    }
+
+    document.getElementById(`rb-${id}`).textContent = valor;
+    document.getElementById(`rp-${id}`).textContent = '🔗 ' + (resultado.provedor || 'API');
+    const temRestricao = detectarRestricao(resultado.data);
+    document.getElementById(`rs-${id}`).textContent = temRestricao ? '⚠ Restrição' : '✓ Regular';
+    document.getElementById(`rs-${id}`).className = 'status-badge ' + (temRestricao ? 'status-alert' : 'status-ok');
+    renderGrid(`rg-${id}`, resultado.data);
+    document.getElementById(`rj-${id}`).textContent = JSON.stringify(resultado.data, null, 2);
+    document.getElementById(`res-${id}`).classList.add('show');
+    showToast('✅ Consulta realizada com sucesso!', 'ok');
+  } catch (e) {
+    esconderLoading();
+    showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
+  }
+}
+
+const PRECOS_CRLV = {
+  AC:25, AL:30, AP:7, BA:30, CE:40, GO:10, MA:7, MT:7,
+  MS:25, MG:10, PA:7, PR:10, PE:50, PI:12, RJ:15,
+  RO:20, RR:15, SC:15, SE:15, SP:13, TO:7, DF:15, PB:15, RN:15, ES:15,
+};
+
+async function temSaldoSuficiente(valor) {
+  if (!perfilUsuario) return false;
+  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
+  return (data?.creditos || 0) >= valor;
+}
+
+async function descontarSaldo(valor) {
+  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
+  const novoSaldo = Math.max(0, (data?.creditos || 0) - valor);
+  await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', perfilUsuario.id);
+  perfilUsuario.creditos = novoSaldo;
+  atualizarSaldoUI(novoSaldo);
+  return novoSaldo;
+}
+
+function atualizarSaldoUI(saldo) {
+  document.getElementById('user-creditos').textContent = 'Saldo: R$ ' + saldo.toFixed(2).replace('.',',');
+  const ps = document.getElementById('perfil-saldo');
+  if (ps) ps.textContent = 'R$ ' + saldo.toFixed(2).replace('.',',');
+}
+
 async function chamarAPI(endpoint, params = {}) {
   const res = await fetch('/api/consulta', {
     method: 'POST',
@@ -409,157 +483,6 @@ async function chamarAPI(endpoint, params = {}) {
   return { tipo: 'json', data: resultado.dados, provedor: resultado.provedor };
 }
 
-// ============================================================
-//  PREÇOS
-// ============================================================
-const PRECOS = {
-  '/consultar-placa-v2': 5.00,
-  '/consultar-placa-nacional': 5.00,
-  '/consultar-placa-v3': 12.00,
-  '/consultar-cautelar': 29.90,
-  '/consultar-chassi': 5.00,
-  '/gravame': 5.00,
-  '/consultar-debito': 5.00,
-  '/consultar-placa-fipe': 0,
-  '/proprietario-atual': 3.00,
-  '/consultar-historico-proprietario': 7.00,
-  '/auto-quilometragem': 5.00,
-  '/consultar-motor': 5.00,
-  '/renajud': 7.00,
-  '/licenciamento-bin': 5.00,
-  '/comunicado-venda/inserir': 5.00,
-  '/comunicado-venda/transmitir': 30.00,
-};
-
-const PRECOS_CRLV = {
-  AC: 25, AL: 30, AP: 7, BA: 30, CE: 40, GO: 10, MA: 7, MT: 7,
-  MS: 25, MG: 10, PA: 7, PR: 10, PE: 50, PI: 12, RJ: 15,
-  RO: 20, RR: 15, SC: 15, SE: 15, SP: 13, TO: 7, DF: 15,
-  PB: 15, RN: 15, ES: 15,
-};
-
-function getPreco(endpoint) {
-  return PRECOS[endpoint] ?? 5.00;
-}
-
-async function temSaldoSuficiente(valor) {
-  if (!perfilUsuario) return false;
-  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
-  return (data?.creditos || 0) >= valor;
-}
-
-async function descontarSaldo(valor) {
-  const { data } = await sb.from('profiles').select('creditos').eq('id', perfilUsuario.id).single();
-  const novoSaldo = Math.max(0, (data?.creditos || 0) - valor);
-  await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', perfilUsuario.id);
-  perfilUsuario.creditos = novoSaldo;
-  document.getElementById('user-creditos').textContent = novoSaldo.toFixed(2) + ' créditos';
-  document.getElementById('saldo-label').textContent = 'R$ ' + novoSaldo.toFixed(2);
-  return novoSaldo;
-}
-
-// ============================================================
-//  CONSULTAS
-// ============================================================
-async function fazerConsulta(placaId, tipoId, resId, placaBadgeId, statusId, gridId, jsonId, provedorId) {
-  const valor = document.getElementById(placaId).value.trim();
-  const endpoint = document.getElementById(tipoId).value;
-  if (valor.length < 7) { showToast('⚠️ Placa inválida — mínimo 7 caracteres', 'err'); return; }
-
-  const preco = getPreco(endpoint);
-  if (preco > 0) {
-    const ok = await temSaldoSuficiente(preco);
-    if (!ok) { showToast(`⚠️ Saldo insuficiente. Esta consulta custa R$ ${preco.toFixed(2)}`, 'err'); return; }
-  }
-
-  mostrarLoading('Consultando base de dados...');
-  try {
-    const campo = endpoint === '/consultar-chassi' ? 'chassi' : 'placa';
-   const resultado = await chamarAPI(endpoint, { [campo]: valor });
-    esconderLoading();
-
-    if (preco > 0) await descontarSaldo(preco);
-
-    salvarHistorico(valor, endpoint, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok');
-    atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));
-
-    if (resultado.tipo === 'pdf') {
-      baixarBlob(resultado.blob, `${endpoint.replace('/','')}-${valor}.pdf`);
-      showToast('✅ PDF baixado com sucesso!', 'ok');
-      esconderLoading();
-      return;
-    }
-
-    // Exibir resultado
-    document.getElementById(placaBadgeId).textContent = valor;
-    document.getElementById(provedorId).textContent = '🔗 ' + (resultado.provedor || 'API');
-
-    const temRestricao = detectarRestricao(resultado.data);
-    document.getElementById(statusId).textContent = temRestricao ? '⚠ Restrição encontrada' : '✓ Sem restrições';
-    document.getElementById(statusId).className = 'status-badge ' + (temRestricao ? 'status-alert' : 'status-ok');
-
-    renderGrid(gridId, resultado.data);
-    document.getElementById(jsonId).textContent = JSON.stringify(resultado.data, null, 2);
-
-    // Botão PDF
-    const btnPdf = document.getElementById(placaBadgeId.replace('placa','btn-pdf').replace('rr-','rr-').replace('rf-','rf-'));
-    if (btnPdf) btnPdf.onclick = () => gerarPDFTexto(valor, resultado.data);
-
-    document.getElementById(resId).classList.add('show');
-    showToast('✅ Consulta realizada com sucesso!', 'ok');
-  } catch (e) {
-    esconderLoading();
-    showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
-  }
-}
-async function fazerConsultaFull() {
-  const valor = document.getElementById('campo-consulta').value.trim();
-  if (!valor || valor.length < 7) { showToast('⚠️ Preencha o campo corretamente', 'err'); return; }
-
-  const precoFull = getPreco(tipoEndpoint);
-  if (precoFull > 0) {
-    const ok = await temSaldoSuficiente(precoFull);
-    if (!ok) { showToast(`⚠️ Saldo insuficiente. Esta consulta custa R$ ${precoFull.toFixed(2)}`, 'err'); return; }
-  }
-
-  mostrarLoading('Consultando base de dados...');
-
-  try {
-   const resultado = await chamarAPI(tipoEndpoint, { [tipoCampo]: valor });
-    esconderLoading();
-
-    if (precoFull > 0) await descontarSaldo(precoFull);
-
-    salvarHistorico(valor, tipoEndpoint, resultado.provedor, detectarRestricao(resultado.data) ? 'alerta' : 'ok'); 
-    atualizarStats(detectarRestricao(resultado.data));
-
-    if (resultado.tipo === 'pdf') {
-      baixarBlob(resultado.blob, `${tipoEndpoint.replace('/','')}-${valor}.pdf`);
-      showToast('✅ PDF baixado!', 'ok');
-      return;
-    }
-
-    document.getElementById('rf-placa').textContent = valor;
-    document.getElementById('rf-provedor').textContent = '🔗 ' + (resultado.provedor || 'API');
-
-    const temRestricao = detectarRestricao(resultado.data);
-    document.getElementById('rf-status').textContent = temRestricao ? '⚠ Restrição encontrada' : '✓ Sem restrições';
-    document.getElementById('rf-status').className = 'status-badge ' + (temRestricao ? 'status-alert' : 'status-ok');
-
-    renderGrid('rf-grid', resultado.data);
-    document.getElementById('rf-json').textContent = JSON.stringify(resultado.data, null, 2);
-    document.getElementById('rf-btn-pdf').onclick = () => gerarPDFTexto(valor, resultado.data);
-    document.getElementById('res-full').classList.add('show');
-    showToast('✅ Consulta realizada!', 'ok');
-  } catch (e) {
-    esconderLoading();
-    showToast('❌ ' + (e.message || 'Erro na consulta'), 'err');
-  }
-}
-
-// ============================================================
-//  CRLV
-// ============================================================
 const CRLV_MAP = {
   AC:{ep:'/crlv-acre',ag:false}, AL:{ep:'/crlv-agendado-alagoas',ag:true},
   AP:{ep:'/crlv-amapa',ag:false}, BA:{ep:'/crlv-bahia',ag:false},
@@ -576,11 +499,13 @@ const CRLV_MAP = {
   TO:{ep:'/crlv-tocantins',ag:false}
 };
 
+let estadoCRLV = '';
+
 function buildEstadosGrid() {
   document.getElementById('estados-grid').innerHTML = Object.entries(CRLV_MAP).map(([uf, cfg]) => `
     <button class="estado-btn ${cfg.ag?'agendado':''}" onclick="selEstado('${uf}',this)">
-      ${uf}${cfg.ag?'<span class="badge-ag">🕐</span>':''}
-      <div style="font-size:.72rem;color:var(--sky);font-weight:700;margin-top:2px">R$ ${(PRECOS_CRLV[uf]||15).toFixed(2)}</div>
+      <div class="estado-uf">${uf}${cfg.ag?'<span class="badge-ag">🕐</span>':''}</div>
+      <div class="estado-preco">R$ ${(PRECOS_CRLV[uf]||15).toFixed(2)}</div>
     </button>`).join('');
 }
 
@@ -605,13 +530,13 @@ async function emitirCRLV() {
   if (renavam) body.renavam = renavam;
 
   mostrarLoading(`Emitindo CRLV — ${estadoCRLV}...`);
-  
   try {
-   const resultado = await chamarAPI(cfg.ep, body);
+    const resultado = await chamarAPI(cfg.ep, body);
     esconderLoading();
     await descontarSaldo(precoCRLV);
     stats.crlv++; salvarStats();
     document.getElementById('stat-crlv').textContent = stats.crlv;
+    salvarHistorico(placa, `CRLV ${estadoCRLV}`, resultado.provedor, 'ok', precoCRLV);
 
     if (resultado.tipo === 'pdf') {
       baixarBlob(resultado.blob, `CRLV-${estadoCRLV}-${placa}.pdf`);
@@ -631,12 +556,12 @@ async function emitirCRLV() {
     esconderLoading();
     showToast('❌ ' + (e.message || 'Erro na emissão'), 'err');
   }
-}
+} 
+  async function acaoComunicado(acao) {
+  const preco = acao === 'inserir' ? 5.00 : 30.00;
+  const ok = await temSaldoSuficiente(preco);
+  if (!ok) { showToast(`⚠️ Saldo insuficiente. Custa R$ ${preco.toFixed(2)}`, 'err'); return; }
 
-// ============================================================
-//  COMUNICADO
-// ============================================================
-async function acaoComunicado(acao) {
   const body = {
     placa: document.getElementById('com-placa').value,
     renavam: document.getElementById('com-renavam').value,
@@ -651,6 +576,8 @@ async function acaoComunicado(acao) {
   try {
     const resultado = await chamarAPI(`/comunicado-venda/${acao}`, body);
     esconderLoading();
+    await descontarSaldo(preco);
+    salvarHistorico(body.placa, `Comunicado ${acao}`, resultado.provedor, 'ok', preco);
     renderGrid('rcom-grid', resultado.data);
     document.getElementById('rcom-json').textContent = JSON.stringify(resultado.data, null, 2);
     document.getElementById('res-comunicado').classList.add('show');
@@ -661,9 +588,6 @@ async function acaoComunicado(acao) {
   }
 }
 
-// ============================================================
-//  HELPERS
-// ============================================================
 function detectarRestricao(dados) {
   if (!dados) return false;
   const str = JSON.stringify(dados).toLowerCase();
@@ -674,11 +598,11 @@ function detectarRestricao(dados) {
 function renderGrid(id, dados) {
   const el = document.getElementById(id);
   if (!dados || typeof dados !== 'object') {
-    el.innerHTML = '<div class="res-item"><div class="rv" style="color:var(--gray)">Dados não estruturados</div></div>';
+    el.innerHTML = '<div class="res-item"><div class="rv" style="color:var(--gray)">Sem dados</div></div>';
     return;
   }
   const flat = flatObj(dados);
-  el.innerHTML = Object.entries(flat).slice(0,40).map(([k,v]) =>
+  el.innerHTML = Object.entries(flat).slice(0,30).map(([k,v]) =>
     `<div class="res-item"><div class="rl">${k}</div><div class="rv">${v ?? '—'}</div></div>`
   ).join('');
 }
@@ -693,13 +617,6 @@ function flatObj(obj, prefix='') {
     }
     return acc;
   }, {});
-}
-
-function gerarPDFTexto(placa, dados) {
-  const flat = flatObj(dados);
-  const linhas = Object.entries(flat).map(([k,v]) => `${k}: ${v}`).join('\n');
-  const blob = new Blob([`PORTAL DESPACHANTE\nConsulta Veicular\nPlaca: ${placa}\nData: ${new Date().toLocaleString('pt-BR')}\n\n${linhas}`], { type:'text/plain' });
-  baixarBlob(blob, `consulta-${placa}.txt`);
 }
 
 function baixarBlob(blob, nome) {
@@ -718,24 +635,18 @@ function limparResultado(resId, inputId) {
   document.getElementById(inputId).value = '';
 }
 
-function selTab(el, endpoint, campo) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  tipoEndpoint = endpoint;
-  tipoCampo = campo;
-  document.getElementById('label-campo').textContent = campo === 'chassi' ? 'Chassi' : 'Placa';
-  document.getElementById('campo-consulta').placeholder = campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23';
-  document.getElementById('res-full').classList.remove('show');
+let historico = JSON.parse(localStorage.getItem('pd_historico') || '[]');
+let stats = JSON.parse(localStorage.getItem('pd_stats') || '{"hoje":0,"ok":0,"crlv":0,"rest":0}');
+const hoje = new Date().toDateString();
+if (localStorage.getItem('pd_data') !== hoje) {
+  stats = { hoje:0, ok:0, crlv:0, rest:0 };
+  localStorage.setItem('pd_data', hoje);
 }
 
-// ============================================================
-//  HISTÓRICO E STATS
-// ============================================================
-function salvarHistorico(placa, tipo, provedor, status) {
-  historico.unshift({ placa, tipo: tipo.replace('/',''), provedor: provedor||'API', data: new Date().toLocaleString('pt-BR'), status });
+function salvarHistorico(placa, tipo, provedor, status, preco) {
+  historico.unshift({ placa, tipo, provedor: provedor||'API', data: new Date().toLocaleString('pt-BR'), status, preco: preco || 0 });
   historico = historico.slice(0, 100);
   localStorage.setItem('pd_historico', JSON.stringify(historico));
-  renderRecente();
 }
 
 function atualizarStats(temRestricao) {
@@ -745,25 +656,9 @@ function atualizarStats(temRestricao) {
   document.getElementById('stat-hoje').textContent = stats.hoje;
   document.getElementById('stat-ok').textContent = stats.ok;
   document.getElementById('stat-rest').textContent = stats.rest;
-  document.getElementById('saldo-label').textContent = stats.hoje + ' consultas hoje';
 }
 
 function salvarStats() { localStorage.setItem('pd_stats', JSON.stringify(stats)); }
-
-function renderRecente() {
-  const tbody = document.getElementById('tbody-recente');
-  if (!historico.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:2rem">Nenhuma consulta ainda</td></tr>';
-    return;
-  }
-  tbody.innerHTML = historico.slice(0,5).map(r => `
-    <tr>
-      <td class="td-placa">${r.placa}</td>
-      <td style="font-size:.82rem">${r.tipo}</td>
-      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
-      <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
-    </tr>`).join('');
-}
 
 function renderHistoricoCompleto(dados) {
   const tbody = document.getElementById('tbody-historico');
@@ -773,9 +668,9 @@ function renderHistoricoCompleto(dados) {
   tbody.innerHTML = dados.map(r => `
     <tr>
       <td class="td-placa">${r.placa}</td>
-      <td style="font-size:.82rem">${r.tipo}</td>
-      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
-      <td><span class="provedor-badge">${r.provedor}</span></td>
+      <td style="font-size:.8rem">${r.tipo}</td>
+      <td style="font-size:.8rem;color:var(--gray)">${r.data}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${(r.preco||0).toFixed(2)}</td>
       <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
     </tr>`).join('');
 }
@@ -786,18 +681,20 @@ function filtrarHistorico(q) {
   ));
 }
 
-// ============================================================
-//  UI
-// ============================================================
-const titulos = { inicio:'Início', consulta:'Consulta Veicular', crlv:'CRLV-e Digital', comunicado:'Comunicado de Venda', historico:'Histórico', creditos:'Comprar Créditos' };
+const titulos = { inicio:'Dashboard', crlv:'Pedidos CRLV-e', comunicado:'Comunicado de Venda', historico:'Histórico de Consultas', creditos:'Recarga de Saldo', perfil:'Minha Conta' };
 
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-'+id).classList.add('active');
   if (el) el.classList.add('active');
-  document.getElementById('topbar-title').textContent = titulos[id] || id;
+  document.querySelector('.topbar-title').innerHTML = '<span class="menu-ic">☰</span> ' + (titulos[id] || id);
   if (id === 'historico') renderHistoricoCompleto(historico);
+  if (id === 'perfil' && perfilUsuario) {
+    document.getElementById('perfil-nome').value = perfilUsuario.nome || '';
+    document.getElementById('perfil-email').value = perfilUsuario.email || '';
+    atualizarSaldoUI(perfilUsuario.creditos || 0);
+  }
 }
 
 function mostrarLoading(msg) {
@@ -813,9 +710,6 @@ function showToast(msg, type='ok') {
   setTimeout(()=>t.classList.remove('show'), 3500);
 }
 
-// ============================================================
-//  MERCADO PAGO
-// ============================================================
 const PACOTES = [
   { valor: 50,   label: 'R$ 50,00',   destaque: false },
   { valor: 100,  label: 'R$ 100,00',  destaque: false },
@@ -829,45 +723,30 @@ function buildPacotes() {
   const grid = document.getElementById('pacotes-grid');
   if (!grid) return;
   grid.innerHTML = PACOTES.map(p => `
-    <div onclick="iniciarPagamento(${p.valor})" style="
-      border:2px solid ${p.destaque ? 'var(--sky)' : 'var(--border)'};
-      border-radius:14px; padding:1.5rem 1rem; text-align:center;
-      cursor:pointer; transition:all .2s; background:${p.destaque ? 'var(--light)' : 'var(--white)'};
-      position:relative;
-    " onmouseover="this.style.borderColor='var(--sky)';this.style.transform='translateY(-3px)'"
-       onmouseout="this.style.borderColor='${p.destaque ? 'var(--sky)' : 'var(--border)'}';this.style.transform='none'">
-      ${p.destaque ? '<div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--sky);color:white;font-size:.7rem;font-weight:700;padding:.25rem .7rem;border-radius:100px">MAIS POPULAR</div>' : ''}
-      <div style="font-family:\'Syne\',sans-serif;font-size:1.6rem;font-weight:800;color:var(--navy)">${p.label}</div>
-      <div style="font-size:.8rem;color:var(--gray);margin-top:.4rem">PIX · Cartão · Boleto</div>
-      <button style="margin-top:1rem;width:100%;background:var(--navy);color:white;border:none;padding:.6rem;border-radius:8px;font-weight:700;cursor:pointer;font-family:\'Inter\',sans-serif">
-        Recarregar
-      </button>
+    <div class="credit-pack ${p.destaque?'popular':''}" onclick="iniciarPagamento(${p.valor})">
+      ${p.destaque ? '<div class="pack-badge">MAIS POPULAR</div>' : ''}
+      <div class="pack-valor">${p.label}</div>
+      <div class="pack-sub">PIX · Cartão · Boleto</div>
+      <button class="btn-recarregar">Recarregar</button>
     </div>
   `).join('');
 }
 
 async function iniciarPagamento(valor) {
   if (!perfilUsuario) { showToast('⚠️ Faça login primeiro', 'err'); return; }
-
   document.getElementById('mp-loading').style.display = 'block';
   document.getElementById('pacotes-grid').style.opacity = '0.4';
-
   try {
     const resp = await fetch('/api/pagamento', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        valor,
-        descricao: `Recarga Portal Despachante — R$ ${valor},00`,
-        email: perfilUsuario.email,
-        user_id: perfilUsuario.id,
+        valor, descricao: `Recarga Portal Despachante — R$ ${valor},00`,
+        email: perfilUsuario.email, user_id: perfilUsuario.id,
       }),
     });
-
     const dados = await resp.json();
     if (!resp.ok) throw new Error(dados.erro);
-
-    // Redireciona para o Mercado Pago
     window.location.href = dados.sandbox_init_point || dados.init_point;
   } catch (e) {
     document.getElementById('mp-loading').style.display = 'none';
@@ -878,23 +757,16 @@ async function iniciarPagamento(valor) {
 
 async function carregarRecargas() {
   if (!perfilUsuario) return;
-  const { data } = await sb.from('transacoes')
-    .select('*')
-    .eq('user_id', perfilUsuario.id)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
+  const { data } = await sb.from('transacoes').select('*').eq('user_id', perfilUsuario.id).order('created_at', { ascending: false }).limit(10);
   if (!data || !data.length) return;
   document.getElementById('tbody-recargas').innerHTML = data.map(t => `
     <tr>
       <td style="font-size:.85rem;color:var(--gray)">${new Date(t.created_at).toLocaleString('pt-BR')}</td>
       <td style="font-weight:700;color:var(--navy)">R$ ${parseFloat(t.valor).toFixed(2)}</td>
       <td><span class="tag ${t.status === 'aprovado' ? 'tag-ok' : 'tag-pend'}">${t.status}</span></td>
-    </tr>
-  `).join('');
+    </tr>`).join('');
 }
 
-// Verificar retorno do pagamento
 async function verificarRetornoPagamento() {
   const params = new URLSearchParams(window.location.search);
   const pagamento = params.get('pagamento');
@@ -903,17 +775,11 @@ async function verificarRetornoPagamento() {
   if (pagamento === 'sucesso') {
     showToast(`✅ Pagamento de R$ ${valor} aprovado!`, 'ok');
     if (user_id && valor) {
-      await sb.from('transacoes').insert({
-        user_id,
-        tipo: 'recarga',
-        creditos: 0,
-        valor: parseFloat(valor),
-        status: 'aprovado',
-      });
-      // Adicionar saldo ao perfil
+      await sb.from('transacoes').insert({ user_id, tipo:'recarga', creditos:0, valor:parseFloat(valor), status:'aprovado' });
       const { data: perfilAtual } = await sb.from('profiles').select('creditos').eq('id', user_id).single();
       const novoSaldo = (perfilAtual?.creditos || 0) + parseFloat(valor);
       await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', user_id);
+      atualizarSaldoUI(novoSaldo);
     }
     window.history.replaceState({}, '', '/dashboard.html');
   } else if (pagamento === 'falhou') {
@@ -925,9 +791,6 @@ async function verificarRetornoPagamento() {
   }
 }
 
-// ============================================================
-//  SUPABASE
-// ============================================================
 const { createClient } = supabase;
 const sb = createClient(
   'https://ofutxldgzocvfjcjemlk.supabase.co',
@@ -939,17 +802,14 @@ let perfilUsuario = null;
 async function carregarPerfil() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
-
   const { data: perfil } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
   perfilUsuario = perfil;
-
   if (perfil) {
     const nome = perfil.nome || session.user.email;
     const iniciais = nome.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
     document.getElementById('user-name').textContent = nome;
     document.getElementById('avatar-initials').textContent = iniciais;
-    document.getElementById('user-creditos').textContent = (perfil.creditos || 0) + ' créditos';
-    document.getElementById('saldo-label').textContent = (perfil.creditos || 0) + ' créditos';
+    atualizarSaldoUI(perfil.creditos || 0);
     carregarRecargas();
   }
 }
@@ -959,29 +819,16 @@ async function fazerLogout() {
   window.location.href = 'login.html';
 }
 
-async function salvarConsultaDB(placa, tipo, status) {
-  if (!perfilUsuario) return;
-  await sb.from('consultas').insert({
-    user_id: perfilUsuario.id,
-    placa,
-    tipo,
-    creditos_usados: 1,
-  });
-}
 (function init() {
   buildEstadosGrid();
   buildPacotes();
-  renderRecente();
+  renderServicos(SERVICOS, 'servicos-lista');
   document.getElementById('stat-hoje').textContent = stats.hoje;
   document.getElementById('stat-ok').textContent = stats.ok;
   document.getElementById('stat-crlv').textContent = stats.crlv;
   document.getElementById('stat-rest').textContent = stats.rest;
   carregarPerfil().then(() => verificarRetornoPagamento());
 })();
-// ============================================================
-//  INIT
-// ============================================================
-
 </script>
 </body>
 </html>

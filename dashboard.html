@@ -747,7 +747,7 @@ async function iniciarPagamento(valor) {
     });
     const dados = await resp.json();
     if (!resp.ok) throw new Error(dados.erro);
-    window.location.href = dados.sandbox_init_point || dados.init_point;
+    window.location.href = dados.init_point || dados.sandbox_init_point;
   } catch (e) {
     document.getElementById('mp-loading').style.display = 'none';
     document.getElementById('pacotes-grid').style.opacity = '1';

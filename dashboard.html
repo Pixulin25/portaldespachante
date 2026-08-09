@@ -144,17 +144,16 @@
 </head>
 <body>
   <aside class="sidebar">
-  <div class="sidebar-logo">
+ <div class="sidebar-logo" style="justify-content:center;text-align:center;flex-direction:column;gap:.3rem;padding:1.6rem 1rem">
     <div class="sidebar-logo-icon">🚀</div>
-    Portal Despachante
+    <div>Portal <span style="color:var(--accent)">Despachante</span></div>
   </div>
 <nav class="sidebar-nav">
     <div class="nav-group-label" onclick="toggleGrupo('conta')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
       <span>Minha Conta</span><span id="arrow-conta">▾</span>
     </div>
     <div id="grupo-conta" style="max-height:200px;overflow:hidden;transition:max-height .3s">
-      <a class="nav-item" onclick="showPanel('perfil',this)"><span class="icon">👤</span> Minha Conta</a>
-      <a class="nav-item" onclick="showPanel('inicio',this)"><span class="icon">👥</span> Indicações</a>
+    <a class="nav-item" onclick="showPanel('perfil',this)"><span class="icon">👤</span> Minha Conta</a>
     </div>
 
     <div class="nav-group-label" onclick="toggleGrupo('consultas')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">

@@ -306,8 +306,10 @@
     .footer-col ul li a:hover { color: var(--white); }
     .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: .82rem; }
 
-    @media (max-width: 768px) {
+   @media (max-width: 768px) {
       .nav-links { display: none; }
+      nav { padding: 0 4%; }
+      .nav-cta { padding: .5rem 1rem; font-size: .85rem; }
       .steps::before { display: none; }
       .contact-wrap { grid-template-columns: 1fr; }
       .footer-top { grid-template-columns: 1fr; gap: 2rem; }
@@ -339,10 +341,7 @@
       </div>
       <div style="position:relative;z-index:1">
  <div class="hero-badge">🔍 Plataforma Oficial de Consultas</div>
-<div style="display:inline-flex;align-items:center;gap:.6rem;background:#012A4A;border:1.5px solid #FFCC29;padding:.5rem 1.2rem;border-radius:100px;margin-bottom:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.25)">
-    <svg width="22" height="16" viewBox="0 0 22 16" style="flex-shrink:0"><rect width="22" height="16" fill="#009739"/><polygon points="11,2 20,8 11,14 2,8" fill="#FFCC29"/><circle cx="11" cy="8" r="4" fill="#002776"/></svg>
-    <span style="color:#fff;font-weight:800;font-size:.85rem;letter-spacing:.02em;white-space:nowrap">O MAIS COMPLETO DO BRASIL</span>
-  </div>
+
   <h1>Consultas Veiculares<br/><em>Rápidas e Seguras</em></h1>
   <p>Acesse dados oficiais do DETRAN e SERPRO, emita CRLV digital e consulte restrições em segundos — para cidadãos e despachantes.</p>
   <div class="hero-btns">

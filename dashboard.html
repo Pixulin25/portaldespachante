@@ -740,9 +740,10 @@ async function iniciarPagamento(valor) {
     const resp = await fetch('/api/pagamento', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+     body: JSON.stringify({
         valor, descricao: `Recarga Portal Despachante — R$ ${valor},00`,
         email: perfilUsuario.email, user_id: perfilUsuario.id,
+        nome: perfilUsuario.nome || '',
       }),
     });
     const dados = await resp.json();

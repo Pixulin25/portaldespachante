@@ -152,11 +152,16 @@
     <div class="nav-group-label">Minha Conta</div>
     <a class="nav-item" onclick="showPanel('perfil',this)"><span class="icon">👤</span> Minha Conta</a>
 
-    <div class="nav-group-label">Consultas & Pedidos</div>
-    <a class="nav-item active" onclick="showPanel('inicio',this)"><span class="icon">🔍</span> Serviços Disponíveis</a>
-    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Pedidos CRLV-e</a>
-    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
-    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico de Consultas</a>
+    <div class="nav-group-label" onclick="toggleSubmenu()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+      <span>Consultas & Pedidos</span>
+      <span id="submenu-arrow" style="transition:transform .2s">▾</span>
+    </div>
+    <div id="submenu-consultas" style="max-height:500px;overflow:hidden;transition:max-height .3s">
+      <a class="nav-item active" onclick="showPanel('inicio',this)"><span class="icon">🔍</span> Serviços Disponíveis</a>
+      <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Pedidos CRLV-e</a>
+      <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
+      <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico de Consultas</a>
+    </div>
 
     <div class="nav-group-label">Financeiro</div>
     <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Recarga de Saldo</a>
@@ -682,6 +687,18 @@ function filtrarHistorico(q) {
 }
 
 const titulos = { inicio:'Dashboard', crlv:'Pedidos CRLV-e', comunicado:'Comunicado de Venda', historico:'Histórico de Consultas', creditos:'Recarga de Saldo', perfil:'Minha Conta' };
+
+function toggleSubmenu() {
+  const sub = document.getElementById('submenu-consultas');
+  const arrow = document.getElementById('submenu-arrow');
+  if (sub.style.maxHeight === '0px') {
+    sub.style.maxHeight = '500px';
+    arrow.style.transform = 'rotate(0deg)';
+  } else {
+    sub.style.maxHeight = '0px';
+    arrow.style.transform = 'rotate(-90deg)';
+  }
+}
 
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));

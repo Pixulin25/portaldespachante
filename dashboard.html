@@ -262,15 +262,24 @@
       </div>
     </div>
 
-    <div class="panel" id="panel-historico">
-      <div class="table-card" style="margin-top:0">
-        <div class="table-header">
-          <h3>Histórico de Consultas</h3>
-          <input class="table-search" placeholder="Buscar placa..." oninput="filtrarHistorico(this.value)" />
+<div class="panel" id="panel-historico">
+      <div class="service-card">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1rem">
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Placa</label><input id="filtro-placa" placeholder="EX: ABC1234" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;text-transform:uppercase" oninput="aplicarFiltrosHistorico()" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Tipo de Consulta</label>
+            <select id="filtro-tipo" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Data Inicial</label><input type="date" id="filtro-data-ini" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()" /></div>
+          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Data Final</label><input type="date" id="filtro-data-fim" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()" /></div>
         </div>
-        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Valor</th><th>Status</th></tr></thead>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><h3>Histórico de Consultas</h3></div>
+        <table><thead><tr><th>Placa</th><th>Tipo de Consulta</th><th>Data</th><th>Status</th><th>Fonte</th></tr></thead>
         <tbody id="tbody-historico"></tbody></table>
-        <div id="historico-vazio" class="vazio" style="display:none"><div style="font-size:2rem;margin-bottom:.6rem">📋</div><p>Nenhuma consulta realizada ainda.</p></div>
+        <div id="historico-vazio" class="vazio" style="display:none">Nenhuma consulta realizada ainda.</div>
       </div>
     </div>
 
@@ -676,6 +685,33 @@ function atualizarStats(temRestricao) {
 
 function salvarStats() { localStorage.setItem('pd_stats', JSON.stringify(stats)); }
 
+function popularFiltroTipos() {
+  const tipos = [...new Set(historico.map(r => r.tipo))];
+  const sel = document.getElementById('filtro-tipo');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos</option>' + tipos.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+function aplicarFiltrosHistorico() {
+  const placa = (document.getElementById('filtro-placa')?.value || '').toUpperCase();
+  const tipo = document.getElementById('filtro-tipo')?.value || '';
+  const dataIni = document.getElementById('filtro-data-ini')?.value;
+  const dataFim = document.getElementById('filtro-data-fim')?.value;
+
+  let filtrado = historico.filter(r => {
+    if (placa && !r.placa.includes(placa)) return false;
+    if (tipo && r.tipo !== tipo) return false;
+    if (dataIni || dataFim) {
+      const partes = r.data.split(',')[0].split('/');
+      const dataReg = new Date(partes[2], partes[1]-1, partes[0]);
+      if (dataIni && dataReg < new Date(dataIni)) return false;
+      if (dataFim && dataReg > new Date(dataFim + 'T23:59:59')) return false;
+    }
+    return true;
+  });
+  renderHistoricoCompleto(filtrado);
+}
+
 function renderHistoricoCompleto(dados) {
   const tbody = document.getElementById('tbody-historico');
   const vazio = document.getElementById('historico-vazio');
@@ -684,10 +720,10 @@ function renderHistoricoCompleto(dados) {
   tbody.innerHTML = dados.map(r => `
     <tr>
       <td class="td-placa">${r.placa}</td>
-      <td style="font-size:.8rem">${r.tipo}</td>
-      <td style="font-size:.8rem;color:var(--gray)">${r.data}</td>
-      <td style="font-weight:700;color:var(--sky)">R$ ${(r.preco||0).toFixed(2)}</td>
+      <td style="font-size:.82rem">${r.tipo}</td>
+      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
       <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
+      <td><span class="provedor-badge">${r.provedor}</span></td>
     </tr>`).join('');
 }
 
@@ -729,7 +765,7 @@ function showPanel(id, el) {
   document.getElementById('panel-'+id).classList.add('active');
   if (el) el.classList.add('active');
   document.querySelector('.topbar-title').innerHTML = '<span class="menu-ic">☰</span> ' + (titulos[id] || id);
-  if (id === 'historico') renderHistoricoCompleto(historico);
+  if (id === 'historico') { popularFiltroTipos(); renderHistoricoCompleto(historico); }
   if (id === 'perfil' && perfilUsuario) {
     document.getElementById('perfil-nome').value = perfilUsuario.nome || '';
     document.getElementById('perfil-email').value = perfilUsuario.email || '';

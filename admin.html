@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Despachante — Painel Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#0B1F3A; --blue:#1A4A8A; --sky:#2E86DE; --accent:#F4A733;
+      --light:#EEF4FF; --white:#FFFFFF; --gray:#6B7A99; --text:#1C2B40;
+      --border:#E4E9F2; --green:#27AE60; --red:#E03D3D; --sidebar-w:230px;
+    }
+    body { font-family:'Inter',sans-serif; background:#F7F9FC; color:var(--text); display:flex; min-height:100vh; font-size:14px; }
+
+    .sidebar { width:var(--sidebar-w); background:var(--navy); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:50; }
+    .sidebar-logo { padding:1.4rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; color:var(--white); display:flex; align-items:center; gap:.6rem; border-bottom:1px solid rgba(255,255,255,0.1); }
+    .sidebar-logo .badge { background:var(--accent); color:var(--navy); font-size:.62rem; font-weight:800; padding:.15rem .5rem; border-radius:100px; }
+    .sidebar-nav { flex:1; padding:1rem 0; }
+    .nav-item { display:flex; align-items:center; gap:.7rem; padding:.7rem 1.3rem; cursor:pointer; color:rgba(255,255,255,0.65); font-size:.87rem; font-weight:500; border-left:3px solid transparent; }
+    .nav-item:hover { background:rgba(255,255,255,0.06); color:var(--white); }
+    .nav-item.active { color:var(--white); background:rgba(46,134,222,0.2); border-left-color:var(--sky); font-weight:700; }
+    .sidebar-foot { padding:1rem 1.3rem; border-top:1px solid rgba(255,255,255,0.1); }
+    .sidebar-foot a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:.82rem; }
+
+    .main { margin-left:var(--sidebar-w); flex:1; }
+    .topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+    .topbar h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; color:var(--navy); }
+    .content { padding:2rem; }
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:1.4rem 1.5rem; }
+    .stat-card .icon { font-size:1.4rem; margin-bottom:.6rem; }
+    .stat-card .label { font-size:.78rem; color:var(--gray); font-weight:500; margin-bottom:.3rem; }
+    .stat-card .value { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--navy); }
+    .stat-card .value.green { color:var(--green); }
+
+    .table-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:1.5rem; }
+    .table-header { padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; }
+    .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); font-size:.95rem; }
+    .search-input { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.82rem; font-family:'Inter',sans-serif; outline:none; width:220px; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#FAFBFD; font-size:.72rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.04em; padding:.75rem 1.3rem; text-align:left; border-bottom:1px solid var(--border); }
+    td { padding:.8rem 1.3rem; font-size:.83rem; border-bottom:1px solid #F0F4FA; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FAFBFF; }
+    .tag { display:inline-block; padding:.2rem .6rem; border-radius:100px; font-size:.7rem; font-weight:700; }
+    .tag-ok{background:#EAFAF1;color:var(--green)} .tag-pend{background:#FFF8EC;color:#C0822A} .tag-admin{background:#FFF0E0;color:var(--accent)}
+    .btn-sm { background:var(--sky); color:white; border:none; padding:.4rem .8rem; border-radius:7px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+    .btn-sm:hover { background:#1a70cc; }
+    .vazio { text-align:center; padding:3rem; color:var(--gray); }
+
+    .modal-overlay { position:fixed; inset:0; background:rgba(11,31,58,0.6); display:flex; align-items:center; justify-content:center; z-index:200; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal { background:white; border-radius:16px; padding:2rem; width:90%; max-width:420px; }
+    .modal h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); margin-bottom:1.2rem; }
+    .modal label { display:block; font-size:.8rem; font-weight:600; margin-bottom:.4rem; }
+    .modal input, .modal select { width:100%; padding:.7rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.9rem; margin-bottom:1rem; font-family:'Inter',sans-serif; }
+    .modal-btns { display:flex; gap:.7rem; margin-top:.5rem; }
+    .btn-cancel { flex:1; padding:.7rem; border-radius:8px; border:1.5px solid var(--border); background:white; font-weight:600; cursor:pointer; }
+    .btn-confirm { flex:1; padding:.7rem; border-radius:8px; border:none; background:var(--navy); color:white; font-weight:700; cursor:pointer; }
+
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:white; padding:.85rem 1.6rem; border-radius:10px; font-size:.88rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,0.25); transition:transform .35s; z-index:300; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.ok { border-left:4px solid var(--green); }
+    .toast.err { border-left:4px solid var(--red); }
+
+    .loading-screen { position:fixed; inset:0; background:var(--navy); display:flex; align-items:center; justify-content:center; z-index:500; color:white; font-family:'Syne',sans-serif; font-weight:700; }
+    @media(max-width:900px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .content{padding:1rem} }
+  </style>
+</head>
+<body>
+
+<div class="loading-screen" id="auth-loading">Verificando acesso...</div>
+
+<aside class="sidebar" style="display:none" id="sidebar">
+  <div class="sidebar-logo">🚀 Admin <span class="badge">ADMIN</span></div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" onclick="showPanel('geral',this)">📊 Visão Geral</a>
+    <a class="nav-item" onclick="showPanel('clientes',this)">👥 Clientes</a>
+    <a class="nav-item" onclick="showPanel('financeiro',this)">💰 Financeiro</a>
+    <a class="nav-item" onclick="showPanel('consultas',this)">🔍 Consultas</a>
+  </nav>
+  <div class="sidebar-foot"><a href="dashboard.html">← Voltar ao site</a></div>
+</aside>
+
+<div class="main" style="display:none" id="main-content">
+  <header class="topbar">
+    <h1 id="topbar-title">Visão Geral</h1>
+  </header>
+
+  <div class="content">
+
+    <div class="panel active" id="panel-geral">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="icon">💰</div><div class="label">Receita Total</div><div class="value green" id="stat-receita">R$ 0</div></div>
+        <div class="stat-card"><div class="icon">👥</div><div class="label">Total de Clientes</div><div class="value" id="stat-clientes">0</div></div>
+        <div class="stat-card"><div class="icon">🔍</div><div class="label">Consultas Realizadas</div><div class="value" id="stat-consultas">0</div></div>
+        <div class="stat-card"><div class="icon">📅</div><div class="label">Receita Este Mês</div><div class="value green" id="stat-receita-mes">R$ 0</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header"><h3>Últimos Clientes Cadastrados</h3></div>
+        <table><thead><tr><th>Nome</th><th>E-mail</th><th>Saldo</th><th>Cadastro</th></tr></thead>
+        <tbody id="tbody-clientes-recentes"></tbody></table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header"><h3>Últimas Recargas</h3></div>
+        <table><thead><tr><th>Data</th><th>Cliente</th><th>Valor</th><th>Status</th></tr></thead>
+        <tbody id="tbody-recargas-recentes"></tbody></table>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-clientes">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Todos os Clientes</h3>
+          <input class="search-input" placeholder="Buscar por nome ou e-mail..." oninput="filtrarClientes(this.value)" />
+        </div>
+        <table><thead><tr><th>Nome</th><th>E-mail</th><th>Saldo</th><th>Tipo</th><th>Cadastro</th><th>Ação</th></tr></thead>
+        <tbody id="tbody-clientes"></tbody></table>
+        <div id="clientes-vazio" class="vazio" style="display:none">Nenhum cliente encontrado.</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-financeiro">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="icon">💵</div><div class="label">Total Recargas Aprovadas</div><div class="value green" id="stat-fin-total">R$ 0</div></div>
+        <div class="stat-card"><div class="icon">📈</div><div class="label">Número de Transações</div><div class="value" id="stat-fin-count">0</div></div>
+        <div class="stat-card"><div class="icon">📊</div><div class="label">Ticket Médio</div><div class="value" id="stat-fin-medio">R$ 0</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Histórico de Transações</h3>
+          <input class="search-input" placeholder="Buscar cliente..." oninput="filtrarFinanceiro(this.value)" />
+        </div>
+        <table><thead><tr><th>Data</th><th>Cliente</th><th>E-mail</th><th>Valor</th><th>Status</th><th>Payment ID</th></tr></thead>
+        <tbody id="tbody-financeiro"></tbody></table>
+        <div id="financeiro-vazio" class="vazio" style="display:none">Nenhuma transação encontrada.</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-consultas">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Todas as Consultas</h3>
+          <input class="search-input" placeholder="Buscar placa ou cliente..." oninput="filtrarConsultas(this.value)" />
+        </div>
+        <table><thead><tr><th>Data</th><th>Cliente</th><th>Placa</th><th>Tipo</th><th>Créditos</th></tr></thead>
+        <tbody id="tbody-consultas"></tbody></table>
+        <div id="consultas-vazio" class="vazio" style="display:none">Nenhuma consulta encontrada.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-saldo">
+  <div class="modal">
+    <h3>💰 Ajustar Saldo</h3>
+    <label>Cliente</label>
+    <input id="modal-cliente-nome" disabled />
+    <label>Saldo Atual</label>
+    <input id="modal-saldo-atual" disabled />
+    <label>Ação</label>
+    <select id="modal-acao">
+      <option value="add">Adicionar</option>
+      <option value="remove">Remover</option>
+      <option value="set">Definir valor exato</option>
+    </select>
+    <label>Valor (R$)</label>
+    <input type="number" id="modal-valor" placeholder="0,00" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmarAjusteSaldo()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'https://ofutxldgzocvfjcjemlk.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA'
+);
+
+let todosClientes = [];
+let todasTransacoes = [];
+let todasConsultas = [];
+let clienteSelecionado = null;
+async function verificarAdmin() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = 'login.html'; return; }
+
+  const { data: perfil } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+  if (!perfil || perfil.tipo !== 'admin') {
+    showToast('⛔ Acesso restrito a administradores', 'err');
+    setTimeout(() => window.location.href = 'dashboard.html', 1500);
+    return;
+  }
+
+  document.getElementById('auth-loading').style.display = 'none';
+  document.getElementById('sidebar').style.display = 'flex';
+  document.getElementById('main-content').style.display = 'block';
+
+  carregarTudo();
+}
+
+async function carregarTudo() {
+  const { data: clientes } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+  todosClientes = clientes || [];
+
+  const { data: transacoes } = await sb.from('transacoes').select('*, profiles(nome, email)').order('created_at', { ascending: false });
+  todasTransacoes = transacoes || [];
+
+  const { data: consultas } = await sb.from('consultas').select('*, profiles(nome, email)').order('created_at', { ascending: false }).limit(200);
+  todasConsultas = consultas || [];
+
+  renderGeral();
+  renderClientes(todosClientes);
+  renderFinanceiro(todasTransacoes);
+  renderConsultas(todasConsultas);
+}
+
+function renderGeral() {
+  const receitaTotal = todasTransacoes.filter(t => t.status === 'aprovado').reduce((s, t) => s + parseFloat(t.valor || 0), 0);
+  const hoje = new Date();
+  const mesAtual = hoje.getMonth();
+  const anoAtual = hoje.getFullYear();
+  const receitaMes = todasTransacoes.filter(t => {
+    if (t.status !== 'aprovado') return false;
+    const d = new Date(t.created_at);
+    return d.getMonth() === mesAtual && d.getFullYear() === anoAtual;
+  }).reduce((s, t) => s + parseFloat(t.valor || 0), 0);
+
+  document.getElementById('stat-receita').textContent = 'R$ ' + receitaTotal.toFixed(2).replace('.', ',');
+  document.getElementById('stat-clientes').textContent = todosClientes.length;
+  document.getElementById('stat-consultas').textContent = todasConsultas.length;
+  document.getElementById('stat-receita-mes').textContent = 'R$ ' + receitaMes.toFixed(2).replace('.', ',');
+
+  document.getElementById('tbody-clientes-recentes').innerHTML = todosClientes.slice(0, 5).map(c => `
+    <tr>
+      <td style="font-weight:600">${c.nome || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${(c.creditos || 0).toFixed(2)}</td>
+      <td style="color:var(--gray)">${new Date(c.created_at).toLocaleDateString('pt-BR')}</td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:2rem">Sem clientes ainda</td></tr>';
+
+  document.getElementById('tbody-recargas-recentes').innerHTML = todasTransacoes.slice(0, 5).map(t => `
+    <tr>
+      <td style="color:var(--gray)">${new Date(t.created_at).toLocaleString('pt-BR')}</td>
+      <td>${t.profiles?.nome || t.profiles?.email || '—'}</td>
+      <td style="font-weight:700;color:var(--navy)">R$ ${parseFloat(t.valor).toFixed(2)}</td>
+      <td><span class="tag ${t.status === 'aprovado' ? 'tag-ok' : 'tag-pend'}">${t.status}</span></td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:2rem">Sem transações ainda</td></tr>';
+}
+
+function renderClientes(lista) {
+  const tbody = document.getElementById('tbody-clientes');
+  const vazio = document.getElementById('clientes-vazio');
+  if (!lista.length) { tbody.innerHTML = ''; vazio.style.display = 'block'; return; }
+  vazio.style.display = 'none';
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td style="font-weight:600">${c.nome || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${(c.creditos || 0).toFixed(2)}</td>
+      <td>${c.tipo === 'admin' ? '<span class="tag tag-admin">ADMIN</span>' : '<span class="tag tag-ok">Cliente</span>'}</td>
+      <td style="color:var(--gray)">${new Date(c.created_at).toLocaleDateString('pt-BR')}</td>
+      <td><button class="btn-sm" onclick="abrirModalSaldo('${c.id}')">Ajustar Saldo</button></td>
+    </tr>`).join('');
+}
+
+function filtrarClientes(q) {
+  const f = todosClientes.filter(c =>
+    (c.nome || '').toLowerCase().includes(q.toLowerCase()) ||
+    (c.email || '').toLowerCase().includes(q.toLowerCase())
+  );
+  renderClientes(f);
+}
+
+function renderFinanceiro(lista) {
+  const aprovadas = lista.filter(t => t.status === 'aprovado');
+  const total = aprovadas.reduce((s, t) => s + parseFloat(t.valor || 0), 0);
+  const media = aprovadas.length ? total / aprovadas.length : 0;
+
+  document.getElementById('stat-fin-total').textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+  document.getElementById('stat-fin-count').textContent = aprovadas.length;
+  document.getElementById('stat-fin-medio').textContent = 'R$ ' + media.toFixed(2).replace('.', ',');  
+  const tbody = document.getElementById('tbody-financeiro');
+  const vazio = document.getElementById('financeiro-vazio');
+  if (!lista.length) { tbody.innerHTML = ''; vazio.style.display = 'block'; return; }
+  vazio.style.display = 'none';
+  tbody.innerHTML = lista.map(t => `
+    <tr>
+      <td style="color:var(--gray)">${new Date(t.created_at).toLocaleString('pt-BR')}</td>
+      <td style="font-weight:600">${t.profiles?.nome || '—'}</td>
+      <td>${t.profiles?.email || '—'}</td>
+      <td style="font-weight:700;color:var(--navy)">R$ ${parseFloat(t.valor).toFixed(2)}</td>
+      <td><span class="tag ${t.status === 'aprovado' ? 'tag-ok' : 'tag-pend'}">${t.status}</span></td>
+      <td style="font-size:.75rem;color:var(--gray)">${t.mp_payment_id || '—'}</td>
+    </tr>`).join('');
+}
+
+function filtrarFinanceiro(q) {
+  const f = todasTransacoes.filter(t =>
+    (t.profiles?.nome || '').toLowerCase().includes(q.toLowerCase()) ||
+    (t.profiles?.email || '').toLowerCase().includes(q.toLowerCase())
+  );
+  renderFinanceiro(f);
+}
+
+function renderConsultas(lista) {
+  const tbody = document.getElementById('tbody-consultas');
+  const vazio = document.getElementById('consultas-vazio');
+  if (!lista.length) { tbody.innerHTML = ''; vazio.style.display = 'block'; return; }
+  vazio.style.display = 'none';
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td style="color:var(--gray)">${new Date(c.created_at).toLocaleString('pt-BR')}</td>
+      <td style="font-weight:600">${c.profiles?.nome || c.profiles?.email || '—'}</td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700">${c.placa || '—'}</td>
+      <td>${c.tipo || '—'}</td>
+      <td style="color:var(--sky);font-weight:700">${c.creditos_usados || 1}</td>
+    </tr>`).join('');
+}
+
+function filtrarConsultas(q) {
+  const f = todasConsultas.filter(c =>
+    (c.placa || '').toLowerCase().includes(q.toLowerCase()) ||
+    (c.profiles?.nome || '').toLowerCase().includes(q.toLowerCase())
+  );
+  renderConsultas(f);
+}
+
+function abrirModalSaldo(clienteId) {
+  clienteSelecionado = todosClientes.find(c => c.id === clienteId);
+  if (!clienteSelecionado) return;
+  document.getElementById('modal-cliente-nome').value = clienteSelecionado.nome || clienteSelecionado.email;
+  document.getElementById('modal-saldo-atual').value = 'R$ ' + (clienteSelecionado.creditos || 0).toFixed(2);
+  document.getElementById('modal-valor').value = '';
+  document.getElementById('modal-saldo').classList.add('open');
+}
+
+function fecharModal() {
+  document.getElementById('modal-saldo').classList.remove('open');
+  clienteSelecionado = null;
+}
+
+async function confirmarAjusteSaldo() {
+  if (!clienteSelecionado) return;
+  const acao = document.getElementById('modal-acao').value;
+  const valor = parseFloat(document.getElementById('modal-valor').value);
+  if (isNaN(valor) || valor < 0) { showToast('⚠️ Informe um valor válido', 'err'); return; }
+
+  let novoSaldo;
+  const saldoAtual = clienteSelecionado.creditos || 0;
+  if (acao === 'add') novoSaldo = saldoAtual + valor;
+  else if (acao === 'remove') novoSaldo = Math.max(0, saldoAtual - valor);
+  else novoSaldo = valor;
+
+  const { error } = await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', clienteSelecionado.id);
+  if (error) { showToast('❌ Erro ao atualizar saldo', 'err'); return; }
+
+  showToast(`✅ Saldo atualizado para R$ ${novoSaldo.toFixed(2)}`, 'ok');
+  fecharModal();
+  carregarTudo();
+}
+
+const titulos = { geral: 'Visão Geral', clientes: 'Clientes', financeiro: 'Financeiro', consultas: 'Consultas' };
+function showPanel(id, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('topbar-title').textContent = titulos[id] || id;
+}
+
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+verificarAdmin();
+</script>
+</body>
+</html>

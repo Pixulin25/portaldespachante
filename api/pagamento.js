@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ erro: "Método não permitido" });
 
-  const { valor, email, user_id } = req.body || {};
+ const { valor, descricao, email, user_id, nome } = req.body || {};
   const ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN;
 
   try {
@@ -23,7 +23,11 @@ export default async function handler(req, res) {
           currency_id: "BRL",
           unit_price: Number(valor),
         }],
-        payer: { email },
+       payer: {
+        email,
+        first_name: nome ? nome.split(' ')[0] : undefined,
+        last_name: nome && nome.split(' ').length > 1 ? nome.split(' ').slice(1).join(' ') : undefined,
+      },
         back_urls: {
           success: `https://portaldespachante.online/dashboard.html?pagamento=sucesso&valor=${valor}&user_id=${user_id}`,
           failure: `https://portaldespachante.online/dashboard.html?pagamento=falhou`,

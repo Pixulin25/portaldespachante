@@ -1,8 +1,3 @@
-/**
- * Portal Despachante — Consulta Tabela FIPE (gratuita)
- * Rota: /api/fipe
- */
-
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -13,37 +8,37 @@ export default async function handler(req, res) {
   const { tipo, marca, modelo, ano, codigoFipe } = req.method === "GET" ? req.query : req.body;
 
   const BASE = "https://fipe.parallelum.com.br/api/v2";
-  const tipoVeiculo = tipo || "carros"; // carros, motos, caminhoes
+  const mapaTipo = { carros: "cars", motos: "motorcycles", caminhoes: "trucks" };
+  const tipoVeiculo = mapaTipo[tipo] || "cars";
 
   try {
     let url;
 
     if (codigoFipe) {
-      // Consulta direta por código FIPE
-      url = `${BASE}/${tipoVeiculo}/codigos/${codigoFipe}`;
+      url = `${BASE}/${tipoVeiculo}/${codigoFipe}/years`;
     } else if (marca && modelo && ano) {
-      // Consulta completa por marca/modelo/ano
-      url = `${BASE}/${tipoVeiculo}/marcas/${marca}/modelos/${modelo}/anos/${ano}`;
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models/${modelo}/years/${ano}`;
     } else if (marca && modelo) {
-      // Listar anos disponíveis
-      url = `${BASE}/${tipoVeiculo}/marcas/${marca}/modelos/${modelo}/anos`;
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models/${modelo}/years`;
     } else if (marca) {
-      // Listar modelos da marca
-      url = `${BASE}/${tipoVeiculo}/marcas/${marca}/modelos`;
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models`;
     } else {
-      // Listar marcas disponíveis
-      url = `${BASE}/${tipoVeiculo}/marcas`;
+      url = `${BASE}/${tipoVeiculo}/brands`;
     }
 
-    const resposta = await fetch(url);
-    const dados = await resposta.json();
+    const resposta = await fetch(url, { headers: { accept: "application/json" } });
+    const texto = await resposta.text();
+    console.log("[FIPE] URL:", url, "Status:", resposta.status, "Body:", texto.substring(0, 300));
+
+    let dados;
+    try { dados = JSON.parse(texto); } catch { dados = null; }
 
     if (!resposta.ok) {
-      return res.status(resposta.status).json({ erro: dados?.message || "Erro na consulta FIPE" });
+      return res.status(resposta.status).json({ erro: dados?.message || dados?.error || `Erro ${resposta.status}: ${texto.substring(0,150)}` });
     }
 
-    return res.status(200).json({ tipo: "json", dados });
+    return res.status(200).json({ tipo: "json", dados, urlUsada: url });
   } catch (erro) {
-    return res.status(500).json({ erro: erro.message });
+    return res.status(500).json({ erro: "Exceção: " + erro.message });
   }
 }

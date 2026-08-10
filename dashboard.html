@@ -209,7 +209,8 @@
       <div class="servicos-grid" id="servicos-lista"></div>
     </div>
 
-  <div class="panel" id="panel-crlv">
+<div class="panel" id="panel-crlv">
+      <button class="btn-outline" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem">← Voltar ao Dashboard</button>
       <div class="service-card">
         <div class="service-head">
           <div class="service-title-wrap"><div class="service-icon">📄</div><span class="service-title">Emitir CRLV-e Digital</span></div>
@@ -237,7 +238,6 @@
     </div>
 
    <div class="panel" id="panel-comunicado">
-      <div class="service-card">
         <div class="service-head">
           <div class="service-title-wrap"><div class="service-icon">📝</div><span class="service-title">Comunicado de Venda</span></div>
           <div class="service-price">R$ 30,00</div>
@@ -263,6 +263,7 @@
     </div>
 
 <div class="panel" id="panel-historico">
+      <button class="btn-outline" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem">← Voltar ao Dashboard</button>
       <div class="service-card">
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1rem">
           <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Placa</label><input id="filtro-placa" placeholder="EX: ABC1234" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;text-transform:uppercase" oninput="aplicarFiltrosHistorico()" /></div>
@@ -284,6 +285,7 @@
     </div>
 
     <div class="panel" id="panel-creditos">
+      <button class="btn-outline" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem">← Voltar ao Dashboard</button>
       <h2>💳 Recarga de Saldo</h2>
       <p style="color:var(--gray);font-size:.85rem;margin-bottom:1.5rem;margin-top:-.8rem">Escolha o valor. Pagamento via PIX, cartão ou boleto pelo Mercado Pago.</p>
       <div class="credits-grid" id="pacotes-grid"></div>
@@ -298,6 +300,7 @@
     </div>
 
     <div class="panel" id="panel-perfil">
+      <button class="btn-outline" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem">← Voltar ao Dashboard</button>
       <div class="service-card" style="max-width:520px">
         <div class="service-title-wrap" style="margin-bottom:1.2rem"><div class="service-icon">👤</div><span class="service-title">Minha Conta</span></div>
         <div style="display:grid;gap:.9rem">

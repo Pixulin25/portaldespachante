@@ -3,7 +3,8 @@
     { "source": "/api/consulta", "destination": "/api/consulta.js" },
     { "source": "/api/status",   "destination": "/api/status.js" },
     { "source": "/api/pagamento","destination": "/api/pagamento.js" },
-    { "source": "/api/webhook",  "destination": "/api/webhook.js" }
+   { "source": "/api/webhook",  "destination": "/api/webhook.js" },
+    { "source": "/api/fipe",     "destination": "/api/fipe.js" }
   ],
   "cleanUrls": true,
   "trailingSlash": false

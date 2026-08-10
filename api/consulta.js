@@ -65,8 +65,9 @@ async function chamarProvedor(provedor, endpoint, params) {
     return { tipo: "pdf", base64, provedor: provedor.nome };
   }
 
-  const dados = await res.json();
-  if (!res.ok) throw new Error(dados?.message || dados?.erro || `Erro ${res.status}`);
+ const dados = await res.json();
+  console.log("[Fornecedor Resposta]", JSON.stringify(dados));
+  if (!res.ok) throw new Error(dados?.message || dados?.erro || dados?.mensagem || JSON.stringify(dados) || `Erro ${res.status}`);
   return { tipo: "json", dados, provedor: provedor.nome };
 }
 

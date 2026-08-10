@@ -1,11 +1,40 @@
-{
-  "rewrites": [
-    { "source": "/api/consulta", "destination": "/api/consulta.js" },
-    { "source": "/api/status",   "destination": "/api/status.js" },
-    { "source": "/api/pagamento","destination": "/api/pagamento.js" },
-   { "source": "/api/webhook",  "destination": "/api/webhook.js" },
-    { "source": "/api/fipe",     "destination": "/api/fipe.js" }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+export default async function handler(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") return res.status(200).end();
+
+  const { tipo, marca, modelo, ano, codigoFipe } = req.method === "GET" ? req.query : req.body;
+
+  const BASE = "https://fipe.parallelum.com.br/api/v2";
+  const mapaTipo = { carros: "cars", motos: "motorcycles", caminhoes: "trucks" };
+  const tipoVeiculo = mapaTipo[tipo] || "cars";
+
+  try {
+    let url;
+
+    if (codigoFipe) {
+      url = `${BASE}/${tipoVeiculo}/${codigoFipe}/years`;
+    } else if (marca && modelo && ano) {
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models/${modelo}/years/${ano}`;
+    } else if (marca && modelo) {
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models/${modelo}/years`;
+    } else if (marca) {
+      url = `${BASE}/${tipoVeiculo}/brands/${marca}/models`;
+    } else {
+      url = `${BASE}/${tipoVeiculo}/brands`;
+    }
+
+    const resposta = await fetch(url, { headers: { accept: "application/json" } });
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      return res.status(resposta.status).json({ erro: dados?.message || dados?.error || "Erro na consulta FIPE" });
+    }
+
+    return res.status(200).json({ tipo: "json", dados });
+  } catch (erro) {
+    return res.status(500).json({ erro: erro.message });
+  }
 }

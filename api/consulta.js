@@ -6,8 +6,6 @@
  * ============================================================
  */
 
-const BASE_URL = "https://portaldespachantes.online";
-
 const PROVEDORES = [
   {
     nome: "Portal Despachantes",
@@ -20,12 +18,11 @@ const PROVEDORES = [
 const APIBRASIL_TOKEN = process.env.APIBRASIL_BEARER_TOKEN;
 const APIBRASIL_BASE = "https://gateway.apibrasil.io/api/v2";
 
-// Mapa: endpoint do teu sistema -> endpoint equivalente na ApiBrasil
 const MAPA_APIBRASIL = {
-  "/consultar-placa-v2": { url: "/vehicles/dados", campo: "placa", metodo: "vehicles" },
-  "/consultar-placa-v3": { url: "/vehicles/dados", campo: "placa", metodo: "vehicles" },
-  "/consultar-placa-fipe": { url: "/vehicles/fipe", campo: "placa", metodo: "vehicles" },
-  "/consultar-chassi": { url: "/vehicles/dados", campo: "chassi", metodo: "vehicles" },
+  "/consultar-placa-v2": { url: "/vehicles/dados", campo: "placa" },
+  "/consultar-placa-v3": { url: "/vehicles/dados", campo: "placa" },
+  "/consultar-placa-fipe": { url: "/vehicles/fipe", campo: "placa" },
+  "/consultar-chassi": { url: "/vehicles/dados", campo: "chassi" },
 };
 
 async function chamarApiBrasil(endpoint, params) {
@@ -34,15 +31,12 @@ async function chamarApiBrasil(endpoint, params) {
 
   const res = await fetch(`${APIBRASIL_BASE}${mapa.url}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${APIBRASIL_TOKEN}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${APIBRASIL_TOKEN}` },
     body: JSON.stringify({ [mapa.campo]: params[mapa.campo] }),
     signal: AbortSignal.timeout(15000),
   });
 
-const texto = await res.text();
+  const texto = await res.text();
   console.log("[ApiBrasil]", mapa.url, "Status:", res.status, "Body:", texto.substring(0, 300));
 
   let dados;
@@ -93,36 +87,10 @@ async function chamarProvedor(provedor, endpoint, params) {
     return { tipo: "pdf", base64, provedor: provedor.nome };
   }
 
- const dados = await res.json();
+  const dados = await res.json();
   console.log("[Fornecedor Resposta]", JSON.stringify(dados));
   if (!res.ok) throw new Error(dados?.message || dados?.erro || dados?.mensagem || JSON.stringify(dados) || `Erro ${res.status}`);
   return { tipo: "json", dados, provedor: provedor.nome };
-}
-
-const APIBRASIL_TOKEN = process.env.APIBRASIL_BEARER_TOKEN;
-const APIBRASIL_BASE = "https://gateway.apibrasil.io/api/v2";
-
-const MAPA_APIBRASIL = {
-  "/consultar-placa-v2": { url: "/vehicles/dados", campo: "placa" },
-  "/consultar-placa-v3": { url: "/vehicles/dados", campo: "placa" },
-  "/consultar-placa-fipe": { url: "/vehicles/fipe", campo: "placa" },
-  "/consultar-chassi": { url: "/vehicles/dados", campo: "chassi" },
-};
-
-async function chamarApiBrasil(endpoint, params) {
-  const mapa = MAPA_APIBRASIL[endpoint];
-  if (!mapa || !APIBRASIL_TOKEN) throw new Error("Endpoint não suportado pela ApiBrasil");
-
-  const res = await fetch(`${APIBRASIL_BASE}${mapa.url}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${APIBRASIL_TOKEN}` },
-    body: JSON.stringify({ [mapa.campo]: params[mapa.campo] }),
-    signal: AbortSignal.timeout(15000),
-  });
-
-  const dados = await res.json();
-  if (!res.ok || dados.error) throw new Error(dados?.message || `Erro ApiBrasil ${res.status}`);
-  return { tipo: "json", dados: dados.response || dados, provedor: "ApiBrasil" };
 }
 
 async function chamarComFallback(endpoint, params) {
@@ -147,7 +115,6 @@ async function chamarComFallback(endpoint, params) {
 }
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");

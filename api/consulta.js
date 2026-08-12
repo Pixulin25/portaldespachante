@@ -6,6 +6,51 @@
  * ============================================================
  */
 
+const SUPABASE_URL = "https://ofutxldgzocvfjcjemlk.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA";
+
+async function buscarPrioridades(endpoint) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/config_fornecedores?servico=eq.${encodeURIComponent(endpoint)}&select=*`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
+    });
+    const data = await res.json();
+    return data[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+const SUPABASE_URL = "https://ofutxldgzocvfjcjemlk.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA";
+
+async function buscarPrioridades(endpoint) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/config_fornecedores?servico=eq.${encodeURIComponent(endpoint)}&select=*`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
+    });
+    const data = await res.json();
+    return data[0] || null;
+  } catch {
+    return null;
+  }
+}
+
+const SUPABASE_URL = "https://ofutxldgzocvfjcjemlk.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA";
+
+async function buscarPrioridades(endpoint) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/config_fornecedores?servico=eq.${encodeURIComponent(endpoint)}&select=*`, {
+      headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
+    });
+    const data = await res.json();
+    return data[0] || null;
+  } catch {
+    return null;
+  }
+}
+
 const PROVEDORES = [
   {
     nome: "Portal Despachantes",
@@ -94,7 +139,7 @@ async function chamarProvedor(provedor, endpoint, params) {
 }
 
 async function chamarComFallback(endpoint, params, provedorPreferido) {
-  // Se o utilizador escolheu um fornecedor específico, usa só esse
+  // Prioridade manual (admin testando no dashboard)
   if (provedorPreferido === "apibrasil") {
     if (!MAPA_APIBRASIL[endpoint]) throw new Error("Este serviço não está disponível na ApiBrasil");
     return await chamarApiBrasil(endpoint, params);
@@ -105,27 +150,33 @@ async function chamarComFallback(endpoint, params, provedorPreferido) {
     return await chamarProvedor(provedor, endpoint, params);
   }
 
-  // Sem preferência: fallback automático (comportamento atual)
-  const ativos = PROVEDORES.filter(p => p.ativo());
-  const erros = [];
-  for (const provedor of ativos) {
-    try {
-      return await chamarProvedor(provedor, endpoint, params);
-    } catch (e) {
-      erros.push(`${provedor.nome}: ${e.message}`);
-    }
-  }
-  if (MAPA_APIBRASIL[endpoint] && APIBRASIL_TOKEN) {
-    try {
-      return await chamarApiBrasil(endpoint, params);
-    } catch (e) {
-      erros.push(`ApiBrasil: ${e.message}`);
-    }
-  }
-  if (erros.length === 0) throw new Error("Nenhuma API configurada.");
-  throw new Error("Todos os provedores falharam: " + erros.join(" | "));
-}
+  // Busca configuração de prioridades no Supabase
+  const config = await buscarPrioridades(endpoint);
+  const ordem = config && config.ativo
+    ? [config.prioridade_1, config.prioridade_2, config.prioridade_3].filter(Boolean)
+    : ["portal", "apibrasil"]; // padrão se não houver configuração
 
+  const erros = [];
+
+  for (const chave of ordem) {
+    try {
+      if (chave === "portal") {
+        const provedor = PROVEDORES.find(p => p.nome === "Portal Despachantes");
+        if (!provedor || !provedor.ativo()) throw new Error("não configurado");
+        return await chamarProvedor(provedor, endpoint, params);
+      }
+      if (chave === "apibrasil") {
+        if (!MAPA_APIBRASIL[endpoint]) throw new Error("endpoint não suportado");
+        return await chamarApiBrasil(endpoint, params);
+      }
+    } catch (e) {
+      erros.push(`${chave}: ${e.message}`);
+    }
+  }
+
+  if (erros.length === 0) throw new Error("Nenhum fornecedor configurado para este serviço.");
+  throw new Error("Todos os fornecedores falharam: " + erros.join(" | "));
+}
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");

@@ -95,10 +95,34 @@ async function chamarProvedor(provedor, endpoint, params) {
   return { tipo: "json", dados, provedor: provedor.nome };
 }
 
+const APIBRASIL_TOKEN = process.env.APIBRASIL_BEARER_TOKEN;
+const APIBRASIL_BASE = "https://gateway.apibrasil.io/api/v2";
+
+const MAPA_APIBRASIL = {
+  "/consultar-placa-v2": { url: "/vehicles/dados", campo: "placa" },
+  "/consultar-placa-v3": { url: "/vehicles/dados", campo: "placa" },
+  "/consultar-placa-fipe": { url: "/vehicles/fipe", campo: "placa" },
+  "/consultar-chassi": { url: "/vehicles/dados", campo: "chassi" },
+};
+
+async function chamarApiBrasil(endpoint, params) {
+  const mapa = MAPA_APIBRASIL[endpoint];
+  if (!mapa || !APIBRASIL_TOKEN) throw new Error("Endpoint não suportado pela ApiBrasil");
+
+  const res = await fetch(`${APIBRASIL_BASE}${mapa.url}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${APIBRASIL_TOKEN}` },
+    body: JSON.stringify({ [mapa.campo]: params[mapa.campo] }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  const dados = await res.json();
+  if (!res.ok || dados.error) throw new Error(dados?.message || `Erro ApiBrasil ${res.status}`);
+  return { tipo: "json", dados: dados.response || dados, provedor: "ApiBrasil" };
+}
+
 async function chamarComFallback(endpoint, params) {
   const ativos = PROVEDORES.filter(p => p.ativo());
-  if (!ativos.length) throw new Error("Nenhuma API configurada.");
-
   const erros = [];
   for (const provedor of ativos) {
     try {
@@ -107,6 +131,14 @@ async function chamarComFallback(endpoint, params) {
       erros.push(`${provedor.nome}: ${e.message}`);
     }
   }
+  if (MAPA_APIBRASIL[endpoint] && APIBRASIL_TOKEN) {
+    try {
+      return await chamarApiBrasil(endpoint, params);
+    } catch (e) {
+      erros.push(`ApiBrasil: ${e.message}`);
+    }
+  }
+  if (erros.length === 0) throw new Error("Nenhuma API configurada.");
   throw new Error("Todos os provedores falharam: " + erros.join(" | "));
 }
 

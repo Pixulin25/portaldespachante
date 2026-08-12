@@ -93,7 +93,19 @@ async function chamarProvedor(provedor, endpoint, params) {
   return { tipo: "json", dados, provedor: provedor.nome };
 }
 
-async function chamarComFallback(endpoint, params) {
+async function chamarComFallback(endpoint, params, provedorPreferido) {
+  // Se o utilizador escolheu um fornecedor específico, usa só esse
+  if (provedorPreferido === "apibrasil") {
+    if (!MAPA_APIBRASIL[endpoint]) throw new Error("Este serviço não está disponível na ApiBrasil");
+    return await chamarApiBrasil(endpoint, params);
+  }
+  if (provedorPreferido === "portal") {
+    const provedor = PROVEDORES.find(p => p.nome === "Portal Despachantes");
+    if (!provedor || !provedor.ativo()) throw new Error("Portal Despachantes não configurado");
+    return await chamarProvedor(provedor, endpoint, params);
+  }
+
+  // Sem preferência: fallback automático (comportamento atual)
   const ativos = PROVEDORES.filter(p => p.ativo());
   const erros = [];
   for (const provedor of ativos) {
@@ -122,14 +134,14 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ erro: "Método não permitido" });
 
-  const { endpoint, ...params } = req.body || {};
+const { endpoint, provedorPreferido, ...params } = req.body || {};
 
   if (!endpoint || !ENDPOINTS_PERMITIDOS.includes(endpoint)) {
     return res.status(400).json({ erro: "Endpoint não autorizado: " + endpoint });
   }
 
   try {
-    const resultado = await chamarComFallback(endpoint, params);
+    const resultado = await chamarComFallback(endpoint, params, provedorPreferido);
     return res.status(200).json(resultado);
   } catch (e) {
     return res.status(502).json({ erro: e.message });

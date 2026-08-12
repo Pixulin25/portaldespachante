@@ -86,6 +86,7 @@
     <a class="nav-item" onclick="showPanel('clientes',this)">👥 Clientes</a>
     <a class="nav-item" onclick="showPanel('financeiro',this)">💰 Financeiro</a>
     <a class="nav-item" onclick="showPanel('consultas',this)">🔍 Consultas</a>
+    <a class="nav-item" onclick="showPanel('fornecedores',this)">🔌 Fornecedores</a>
   </nav>
   <div class="sidebar-foot"><a href="dashboard.html">← Voltar ao site</a></div>
 </aside>
@@ -146,7 +147,17 @@
         <div id="financeiro-vazio" class="vazio" style="display:none">Nenhuma transação encontrada.</div>
       </div>
     </div>
+<div class="panel" id="panel-fornecedores">
+      <div class="table-card">
+        <div class="table-header"><h3>Prioridade de Fornecedores por Serviço</h3></div>
+        <table>
+          <thead><tr><th>Serviço</th><th>1ª Prioridade</th><th>2ª Prioridade</th><th>3ª Prioridade</th><th>Ativo</th><th>Ação</th></tr></thead>
+          <tbody id="tbody-fornecedores"></tbody>
+        </table>
+      </div>
+    </div>
 
+    <div class="panel" id="panel-consultas">
     <div class="panel" id="panel-consultas">
       <div class="table-card">
         <div class="table-header">

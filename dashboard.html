@@ -407,8 +407,16 @@ function renderServicos(lista, containerId) {
           <label>${s.campo === 'chassi' ? 'Chassi' : 'Placa'}</label>
           <input class="placa-input" id="input-${s.id}" placeholder="${s.campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23'}" maxlength="${s.campo === 'chassi' ? 17 : 8}" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
         </div>
-      </div>
-      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
+        <div>
+          <label>Fornecedor</label>
+          <select id="provedor-${s.id}">
+            <option value="">Automático (mais rápido)</option>
+            <option value="portal">Portal Despachantes</option>
+            <option value="apibrasil">ApiBrasil</option>
+            <option value="terceiro">Terceiro Fornecedor</option>
+          </select>
+        </div>
+      </div>      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
       <div class="resultado" id="res-${s.id}">
         <div class="resultado-header">
           <div class="placa-badge" id="rb-${s.id}">—</div>
@@ -434,6 +442,7 @@ function filtrarServicos(q) {
 async function consultarServico(id) {
   const s = SERVICOS.find(x => x.id === id);
   const valor = document.getElementById(`input-${id}`).value.trim();
+  const provedorPreferido = document.getElementById(`provedor-${id}`)?.value || '';
   if (valor.length < 7) { showToast('⚠️ Valor inválido — mínimo 7 caracteres', 'err'); return; }
 
   if (s.preco > 0) {
@@ -443,7 +452,7 @@ async function consultarServico(id) {
 
   mostrarLoading(`Consultando ${s.nome}...`);
   try {
-    const resultado = await chamarAPI(s.endpoint, { [s.campo]: valor });
+    const resultado = await chamarAPI(s.endpoint, { [s.campo]: valor, provedorPreferido });
     esconderLoading();
 
     if (s.preco > 0) await descontarSaldo(s.preco);

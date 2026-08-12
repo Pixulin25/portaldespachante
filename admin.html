@@ -386,13 +386,49 @@ async function confirmarAjusteSaldo() {
   carregarTudo();
 }
 
-const titulos = { geral: 'Visão Geral', clientes: 'Clientes', financeiro: 'Financeiro', consultas: 'Consultas' };
+const titulos = { geral: 'Visão Geral', clientes: 'Clientes', financeiro: 'Financeiro', consultas: 'Consultas', fornecedores: 'Fornecedores' };
+
+const OPCOES_FORNECEDOR = { '': '— Nenhum —', portal: 'Portal Despachantes', apibrasil: 'ApiBrasil', terceiro: 'Terceiro Fornecedor' };
+
+async function carregarFornecedores() {
+  const { data } = await sb.from('config_fornecedores').select('*').order('nome_servico');
+  const tbody = document.getElementById('tbody-fornecedores');
+  if (!data || !data.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:2rem">Nenhum serviço configurado</td></tr>'; return; }
+
+  tbody.innerHTML = data.map(f => `
+    <tr>
+      <td style="font-weight:600">${f.nome_servico}</td>
+      <td><select id="p1-${f.id}" style="padding:.3rem .5rem;border-radius:6px;border:1px solid var(--border)">${selectOptions(f.prioridade_1)}</select></td>
+      <td><select id="p2-${f.id}" style="padding:.3rem .5rem;border-radius:6px;border:1px solid var(--border)">${selectOptions(f.prioridade_2)}</select></td>
+      <td><select id="p3-${f.id}" style="padding:.3rem .5rem;border-radius:6px;border:1px solid var(--border)">${selectOptions(f.prioridade_3)}</select></td>
+      <td><input type="checkbox" id="at-${f.id}" ${f.ativo ? 'checked' : ''} /></td>
+      <td><button class="btn-sm" onclick="salvarFornecedor('${f.id}')">Salvar</button></td>
+    </tr>`).join('');
+}
+
+function selectOptions(selecionado) {
+  return Object.entries(OPCOES_FORNECEDOR).map(([v, label]) =>
+    `<option value="${v}" ${v === selecionado ? 'selected' : ''}>${label}</option>`
+  ).join('');
+}
+
+async function salvarFornecedor(id) {
+  const prioridade_1 = document.getElementById(`p1-${id}`).value;
+  const prioridade_2 = document.getElementById(`p2-${id}`).value;
+  const prioridade_3 = document.getElementById(`p3-${id}`).value;
+  const ativo = document.getElementById(`at-${id}`).checked;
+
+  const { error } = await sb.from('config_fornecedores').update({ prioridade_1, prioridade_2, prioridade_3, ativo, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('❌ Erro ao salvar', 'err'); return; }
+  showToast('✅ Configuração salva!', 'ok');
+}
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + id).classList.add('active');
   if (el) el.classList.add('active');
   document.getElementById('topbar-title').textContent = titulos[id] || id;
+  if (id === 'fornecedores') carregarFornecedores();
 }
 
 function showToast(msg, type = 'ok') {

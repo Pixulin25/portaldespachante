@@ -15,14 +15,38 @@ const PROVEDORES = [
     chave: () => process.env.CHAVE_PORTAL_DESPACHANTES,
     ativo: () => !!process.env.CHAVE_PORTAL_DESPACHANTES,
   },
-  // Futuras APIs — descomente e adicione a variável no Vercel:
-  // {
-  //   nome: "SERPRO",
-  //   baseURL: "https://gateway.apiserpro.serpro.gov.br",
-  //   chave: () => process.env.CHAVE_SERPRO,
-  //   ativo: () => !!process.env.CHAVE_SERPRO,
-  // },
 ];
+
+const APIBRASIL_TOKEN = process.env.APIBRASIL_BEARER_TOKEN;
+const APIBRASIL_BASE = "https://gateway.apibrasil.io/api/v2";
+
+// Mapa: endpoint do teu sistema -> endpoint equivalente na ApiBrasil
+const MAPA_APIBRASIL = {
+  "/consultar-placa-v2": { url: "/vehicles/dados", campo: "placa", metodo: "vehicles" },
+  "/consultar-placa-v3": { url: "/vehicles/dados", campo: "placa", metodo: "vehicles" },
+  "/consultar-placa-fipe": { url: "/vehicles/fipe", campo: "placa", metodo: "vehicles" },
+  "/consultar-chassi": { url: "/vehicles/dados", campo: "chassi", metodo: "vehicles" },
+};
+
+async function chamarApiBrasil(endpoint, params) {
+  const mapa = MAPA_APIBRASIL[endpoint];
+  if (!mapa || !APIBRASIL_TOKEN) throw new Error("Endpoint não suportado pela ApiBrasil");
+
+  const res = await fetch(`${APIBRASIL_BASE}${mapa.url}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${APIBRASIL_TOKEN}`,
+    },
+    body: JSON.stringify({ [mapa.campo]: params[mapa.campo] }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  const dados = await res.json();
+  if (!res.ok || dados.error) throw new Error(dados?.message || `Erro ApiBrasil ${res.status}`);
+
+  return { tipo: "json", dados: dados.response || dados, provedor: "ApiBrasil" };
+}
 
 const ENDPOINTS_PERMITIDOS = [
   "/consultar-placa-v2", "/consultar-placa-nacional", "/consultar-placa-v3",

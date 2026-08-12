@@ -42,9 +42,13 @@ async function chamarApiBrasil(endpoint, params) {
     signal: AbortSignal.timeout(15000),
   });
 
-  const dados = await res.json();
-  if (!res.ok || dados.error) throw new Error(dados?.message || `Erro ApiBrasil ${res.status}`);
+const texto = await res.text();
+  console.log("[ApiBrasil]", mapa.url, "Status:", res.status, "Body:", texto.substring(0, 300));
 
+  let dados;
+  try { dados = JSON.parse(texto); } catch { throw new Error(`ApiBrasil não retornou JSON: ${texto.substring(0,150)}`); }
+
+  if (!res.ok || dados.error) throw new Error(dados?.message || `Erro ApiBrasil ${res.status}: ${JSON.stringify(dados)}`);
   return { tipo: "json", dados: dados.response || dados, provedor: "ApiBrasil" };
 }
 

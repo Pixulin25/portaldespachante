@@ -407,16 +407,15 @@ function renderServicos(lista, containerId) {
           <label>${s.campo === 'chassi' ? 'Chassi' : 'Placa'}</label>
           <input class="placa-input" id="input-${s.id}" placeholder="${s.campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23'}" maxlength="${s.campo === 'chassi' ? 17 : 8}" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
         </div>
-        <div>
-          <label>Fornecedor</label>
+        <div id="provedor-wrap-${s.id}" style="display:none">
+          <label>Fornecedor (admin)</label>
           <select id="provedor-${s.id}">
             <option value="">Automático (mais rápido)</option>
             <option value="portal">Portal Despachantes</option>
             <option value="apibrasil">ApiBrasil</option>
             <option value="terceiro">Terceiro Fornecedor</option>
           </select>
-        </div>
-      </div>      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
+        </div>      </div>      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
       <div class="resultado" id="res-${s.id}">
         <div class="resultado-header">
           <div class="placa-badge" id="rb-${s.id}">—</div>
@@ -903,9 +902,12 @@ async function carregarPerfil() {
     document.getElementById('avatar-initials').textContent = iniciais;
     atualizarSaldoUI(perfil.creditos || 0);
     carregarRecargas();
+
+    if (perfil.tipo === 'admin') {
+      document.querySelectorAll('[id^="provedor-wrap-"]').forEach(el => el.style.display = 'block');
+    }
   }
 }
-
 async function fazerLogout() {
   await sb.auth.signOut();
   window.location.href = 'login.html';

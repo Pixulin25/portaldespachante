@@ -416,7 +416,67 @@ async function confirmarAjusteSaldo() {
   carregarTudo();
 }
 
-const titulos = { geral: 'Visão Geral', clientes: 'Clientes', financeiro: 'Financeiro', consultas: 'Consultas', fornecedores: 'Fornecedores' };
+const titulos = { geral: 'Visão Geral', clientes: 'Clientes', financeiro: 'Financeiro', consultas: 'Consultas', fornecedores: 'Fornecedores', relatorios: 'Relatórios' };
+
+function popularClientesRelatorio() {
+  const sel = document.getElementById('rel-cliente');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos</option>' + todosClientes.map(c => `<option value="${c.id}">${c.nome || c.email}</option>`).join('');
+}
+
+function gerarRelatorios() {
+  const dataIni = document.getElementById('rel-data-ini')?.value;
+  const dataFim = document.getElementById('rel-data-fim')?.value;
+  const clienteId = document.getElementById('rel-cliente')?.value;
+
+  let filtradas = todasConsultas.filter(c => {
+    if (clienteId && c.user_id !== clienteId) return false;
+    if (dataIni && new Date(c.created_at) < new Date(dataIni)) return false;
+    if (dataFim && new Date(c.created_at) > new Date(dataFim + 'T23:59:59')) return false;
+    return true;
+  });
+
+  const totalConsultas = filtradas.length;
+  const receitaTotal = filtradas.reduce((s, c) => s + parseFloat(c.valor || 0), 0);
+  const clientesUnicos = new Set(filtradas.map(c => c.user_id)).size;
+
+  document.getElementById('rel-total-consultas').textContent = totalConsultas;
+  document.getElementById('rel-receita-consultas').textContent = 'R$ ' + receitaTotal.toFixed(2).replace('.', ',');
+  document.getElementById('rel-clientes-ativos').textContent = clientesUnicos;
+
+  // Agrupar por tipo
+  const porTipo = {};
+  filtradas.forEach(c => {
+    const tipo = c.tipo || 'Desconhecido';
+    if (!porTipo[tipo]) porTipo[tipo] = { qtd: 0, receita: 0 };
+    porTipo[tipo].qtd++;
+    porTipo[tipo].receita += parseFloat(c.valor || 0);
+  });
+  const listaTipos = Object.entries(porTipo).sort((a, b) => b[1].qtd - a[1].qtd);
+  document.getElementById('tbody-rel-tipo').innerHTML = listaTipos.map(([tipo, d]) => `
+    <tr>
+      <td style="font-weight:600">${tipo}</td>
+      <td>${d.qtd}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${d.receita.toFixed(2)}</td>
+    </tr>`).join('') || '<tr><td colspan="3" style="text-align:center;color:var(--gray);padding:2rem">Sem dados no período</td></tr>';
+
+  // Agrupar por cliente
+  const porCliente = {};
+  filtradas.forEach(c => {
+    const id = c.user_id;
+    if (!porCliente[id]) porCliente[id] = { qtd: 0, receita: 0, nome: c.profiles?.nome, email: c.profiles?.email };
+    porCliente[id].qtd++;
+    porCliente[id].receita += parseFloat(c.valor || 0);
+  });
+  const listaClientes = Object.values(porCliente).sort((a, b) => b.receita - a.receita);
+  document.getElementById('tbody-rel-cliente').innerHTML = listaClientes.map(c => `
+    <tr>
+      <td style="font-weight:600">${c.nome || '—'}</td>
+      <td>${c.email || '—'}</td>
+      <td>${c.qtd}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${c.receita.toFixed(2)}</td>
+    </tr>`).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:2rem">Sem dados no período</td></tr>';
+}
 
 const OPCOES_FORNECEDOR = { '': '— Nenhum —', portal: 'Portal Despachantes', apibrasil: 'ApiBrasil', terceiro: 'Terceiro Fornecedor' };
 
@@ -459,6 +519,7 @@ function showPanel(id, el) {
   if (el) el.classList.add('active');
   document.getElementById('topbar-title').textContent = titulos[id] || id;
   if (id === 'fornecedores') carregarFornecedores();
+  if (id === 'relatorios') { popularClientesRelatorio(); gerarRelatorios(); }
 }
 
 function showToast(msg, type = 'ok') {

@@ -87,6 +87,7 @@
     <a class="nav-item" onclick="showPanel('financeiro',this)">💰 Financeiro</a>
     <a class="nav-item" onclick="showPanel('consultas',this)">🔍 Consultas</a>
     <a class="nav-item" onclick="showPanel('fornecedores',this)">🔌 Fornecedores</a>
+    <a class="nav-item" onclick="showPanel('relatorios',this)">📊 Relatórios</a>
   </nav>
   <div class="sidebar-foot"><a href="dashboard.html">← Voltar ao site</a></div>
 </aside>
@@ -147,6 +148,35 @@
         <div id="financeiro-vazio" class="vazio" style="display:none">Nenhuma transação encontrada.</div>
       </div>
     </div>
+        <div class="panel" id="panel-relatorios">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;margin-bottom:1.5rem">
+        <div><label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:.3rem">Data Inicial</label><input type="date" id="rel-data-ini" style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="gerarRelatorios()" /></div>
+        <div><label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:.3rem">Data Final</label><input type="date" id="rel-data-fim" style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="gerarRelatorios()" /></div>
+        <div><label style="font-size:.78rem;font-weight:600;display:block;margin-bottom:.3rem">Cliente</label>
+          <select id="rel-cliente" style="width:100%;padding:.6rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="gerarRelatorios()"><option value="">Todos</option></select>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="icon">🔍</div><div class="label">Total de Consultas</div><div class="value" id="rel-total-consultas">0</div></div>
+        <div class="stat-card"><div class="icon">💰</div><div class="label">Receita em Consultas</div><div class="value green" id="rel-receita-consultas">R$ 0</div></div>
+        <div class="stat-card"><div class="icon">👥</div><div class="label">Clientes Ativos</div><div class="value" id="rel-clientes-ativos">0</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header"><h3>Consumo por Tipo de Consulta</h3></div>
+        <table><thead><tr><th>Tipo</th><th>Quantidade</th><th>Receita</th></tr></thead>
+        <tbody id="tbody-rel-tipo"></tbody></table>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header"><h3>Consumo por Cliente</h3></div>
+        <table><thead><tr><th>Cliente</th><th>E-mail</th><th>Consultas</th><th>Total Gasto</th></tr></thead>
+        <tbody id="tbody-rel-cliente"></tbody></table>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-fornecedores">
 <div class="panel" id="panel-fornecedores">
       <div class="table-card">
         <div class="table-header"><h3>Prioridade de Fornecedores por Serviço</h3></div>

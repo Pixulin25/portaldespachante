@@ -455,6 +455,7 @@ async function consultarServico(id) {
     esconderLoading();
 
     if (s.preco > 0) await descontarSaldo(s.preco);
+        if (s.preco > 0) await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa: valor, tipo: s.nome, creditos_usados: 1, valor: s.preco });
 
     salvarHistorico(valor, s.nome, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok', s.preco);
     atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));
@@ -573,6 +574,7 @@ async function emitirCRLV() {
     const resultado = await chamarAPI(cfg.ep, body);
     esconderLoading();
     await descontarSaldo(precoCRLV);
+        await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa, tipo: `CRLV ${estadoCRLV}`, creditos_usados: 1, valor: precoCRLV });
     stats.crlv++; salvarStats();
     document.getElementById('stat-crlv').textContent = stats.crlv;
     salvarHistorico(placa, `CRLV ${estadoCRLV}`, resultado.provedor, 'ok', precoCRLV);
@@ -616,6 +618,7 @@ async function emitirCRLV() {
     const resultado = await chamarAPI(`/comunicado-venda/${acao}`, body);
     esconderLoading();
     await descontarSaldo(preco);
+        await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa: body.placa, tipo: `Comunicado ${acao}`, creditos_usados: 1, valor: preco });
     salvarHistorico(body.placa, `Comunicado ${acao}`, resultado.provedor, 'ok', preco);
     renderGrid('rcom-grid', resultado.data);
     document.getElementById('rcom-json').textContent = JSON.stringify(resultado.data, null, 2);

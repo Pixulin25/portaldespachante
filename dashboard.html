@@ -896,6 +896,11 @@ let perfilUsuario = null;
 async function carregarPerfil() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
+  if (!session.user.email_confirmed_at) {
+    await sb.auth.signOut();
+    window.location.href = 'login.html?erro=confirme-email';
+    return;
+  }
   const { data: perfil } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
   perfilUsuario = perfil;
   if (perfil) {

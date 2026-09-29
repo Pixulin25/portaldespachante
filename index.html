@@ -5,71 +5,50 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Portal Despachante — Consultas Veiculares & CRLV Digital</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--navy:#0B1F3A;--sky:#2E86DE;--accent:#F4A733;--light:#EEF4FF;--white:#fff;--gray:#6B7A99;--text:#1C2B40;--border:#D6E0F0}
-body{font-family:'Inter',sans-serif;color:var(--text);line-height:1.5}
-nav{position:sticky;top:0;z-index:50;background:var(--navy);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:#fff}
-.logo span{color:var(--accent)}
-.nav-cta{background:var(--sky);color:#fff;padding:.5rem 1.2rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9rem}
-.hero{background:linear-gradient(135deg,var(--navy),#1A4A8A);padding:60px 5% 50px;text-align:center;color:#fff}
-.hero-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(244,167,51,.15);border:1px solid var(--accent);color:var(--accent);font-size:.75rem;font-weight:700;padding:.35rem .9rem;border-radius:100px;margin-bottom:1.2rem;text-transform:uppercase}
-.hero h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:800;line-height:1.15;max-width:700px;margin:0 auto .9rem}
-.hero h1 em{color:var(--accent);font-style:normal}
-.hero p{color:rgba(255,255,255,.75);max-width:520px;margin:0 auto 1.6rem;font-size:.95rem}
-.hero-btns{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
-.btn-primary{background:var(--accent);color:var(--navy);padding:.75rem 1.6rem;border-radius:9px;font-weight:700;text-decoration:none;font-size:.95rem}
-.btn-secondary{background:rgba(255,255,255,.1);color:#fff;padding:.75rem 1.6rem;border-radius:9px;font-weight:600;text-decoration:none;border:1px solid rgba(255,255,255,.2);font-size:.95rem}
-section{padding:44px 5%}
-.section-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.3rem,2.5vw,1.7rem);color:var(--navy);text-align:center;margin-bottom:.4rem}
-.section-sub{color:var(--gray);text-align:center;font-size:.88rem;max-width:480px;margin:0 auto 2rem}
-.services{background:var(--light)}
-.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem;max-width:1000px;margin:0 auto}
-.svc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.1rem .9rem;text-align:center;transition:transform .15s}
-.svc:hover{transform:translateY(-3px);box-shadow:0 6px 18px rgba(26,74,138,.1)}
-.svc .ic{font-size:1.5rem;margin-bottom:.5rem}
-.svc .nm{font-weight:700;font-size:.85rem;color:var(--navy);margin-bottom:.3rem}
-.svc .pr{font-size:.8rem;font-weight:700;color:var(--sky)}
-.steps{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;max-width:760px;margin:0 auto}
-.step{flex:1;min-width:160px;text-align:center}
-.step-num{width:44px;height:44px;background:var(--navy);color:#fff;font-family:'Syne',sans-serif;font-weight:800;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .7rem;font-size:1.1rem}
-.step h4{font-size:.9rem;font-weight:700;color:var(--navy);margin-bottom:.3rem}
-.step p{font-size:.8rem;color:var(--gray)}
-.cta{background:linear-gradient(135deg,var(--sky),#1A4A8A);text-align:center;padding:50px 5%}
-.cta h2{font-family:'Syne',sans-serif;color:#fff;font-weight:800;font-size:clamp(1.4rem,3vw,2rem);margin-bottom:.6rem}
-.cta p{color:rgba(255,255,255,.8);margin-bottom:1.4rem;font-size:.9rem}
-footer{background:var(--navy);color:rgba(255,255,255,.6);padding:2rem 5%;text-align:center;font-size:.8rem}
-footer a{color:var(--accent);text-decoration:none}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Tahoma','MS Sans Serif',Arial,sans-serif;background:#008080;color:#000;font-size:13px}
+nav{background:linear-gradient(90deg,#000080,#1084d0);padding:0 20px;height:38px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #000}
+.logo{color:#fff;font-weight:bold;font-size:15px}
+.logo span{color:#FFCC00}
+.nav-cta{background:#C0C0C0;border:2px outset #C0C0C0;color:#000;padding:4px 14px;text-decoration:none;font-weight:bold;font-size:12px}
+.nav-cta:active{border:2px inset #C0C0C0}
+.wrap{max-width:800px;margin:20px auto;padding:0 16px}
+.window{background:#C0C0C0;border:3px outset #C0C0C0;margin-bottom:16px}
+.titlebar{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:bold;padding:5px 10px;font-size:13px}
+.winbody{padding:16px}
+.hero-titlebar{text-align:center}
+h1{font-size:22px;font-weight:bold;color:#000080;margin-bottom:8px;text-align:center}
+h1 em{color:#B8860B;font-style:normal}
+.hero p{text-align:center;font-size:13px;color:#333;max-width:520px;margin:0 auto 16px}
+.hero-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{background:#C0C0C0;border:2px outset #C0C0C0;color:#000;padding:8px 18px;font-weight:bold;text-decoration:none;font-size:13px;display:inline-block}
+.btn:active{border:2px inset #C0C0C0}
+.btn-yellow{background:#FFCC00}
+.steps{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.step{flex:1;min-width:180px;background:#fff;border:2px inset #C0C0C0;padding:12px;text-align:center}
+.step-num{width:32px;height:32px;background:#000080;color:#fff;font-weight:bold;border-radius:0;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:14px;border:2px outset #808080}
+.step h4{font-size:13px;font-weight:bold;color:#000080;margin-bottom:4px}
+.step p{font-size:11px;color:#333}
+.notice{background:#FFFFCC;border:2px solid #808000;padding:10px 14px;font-size:12px;margin-bottom:16px}
+footer{background:#C0C0C0;border-top:3px solid #000080;text-align:center;padding:14px;font-size:11px;color:#333}
+footer a{color:#000080;font-weight:bold}
 </style>
 </head>
 <body>
   <nav>
-  <div class="logo">Portal<span>Despachante</span></div>
-  <a href="login.html" class="nav-cta">Entrar</a>
+  <div class="logo">🚀 Portal <span>Despachante</span></div>
+  <a href="login.html" class="nav-cta">Entrar no Sistema</a>
 </nav>
 
-<section class="hero">
-  <div class="hero-badge">🔍 Plataforma Oficial de Consultas</div>
-  <h1>Consultas Veiculares <em>Rápidas e Seguras</em></h1>
-  <p>Acesse dados oficiais do DETRAN, emita CRLV digital e consulte restrições em segundos — para cidadãos e despachantes.</p>
-  <div class="hero-btns">
-    <a href="login.html" class="btn-primary">Iniciar Consulta</a>
-    <a href="#servicos" class="btn-secondary">Ver Serviços</a>
-  </div>
-</section>
+<div class="wrap">
 
-<section class="services" id="servicos">
-  <h2 class="section-title">Nossos Serviços</h2>
-  <p class="section-sub">Tudo o que precisa, num só lugar — dados oficiais e emissão rápida de documentos.</p>
-  <div class="services-grid">
-    <div class="svc"><div class="ic">🔎</div><div class="nm">Consulta Cautelar</div><div class="pr">R$ 29,90</div></div>
-    <div class="svc"><div class="ic">📄</div><div class="nm">CRLV-e Digital</div><div class="pr">a partir de R$ 7</div></div>
-    <div class="svc"><div class="ic">🗺️</div><div class="nm">Base Estadual</div><div class="pr">R$ 5,00</div></div>
-    <div class="svc"><div class="ic">🌎</div><div class="nm">Base Nacional</div><div class="pr">R$ 5,00</div></div>
-    <div class="svc"><div class="ic">🔒</div><div class="nm">Gravame</div><div class="pr">R$ 5,00</div></div>
-    <div class="svc"><div class="ic">📝</div><div class="nm">Comunicado de Venda</div><div class="pr">R$ 30,00</div></div>
-    <div class="svc"><div class="ic">📈</div><div class="nm">Placa + FIPE</div><div class="pr">Grátis</div></div>
-    <div class="svc"><div class="ic">👤</div><div class="nm">Proprietário Atual</div><div
+  <div class="notice">
+    ⚠️ <b>Aviso:</b> Este é o portal oficial de consultas veiculares. Para acessar os serviços, é necessário realizar login ou cadastro no sistema.
+  </div>
+
+  <div class="window">
+    <div class="titlebar">🖥️ Portal Despachante — Sistema de Consultas Veiculares</div>
+    <div class="winbody hero">
+      <h1>Consultas Veiculares <em>Rápidas e Seguras</em></h1>
+      <p>Acesse dados oficiais do DETRAN,

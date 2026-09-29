@@ -179,10 +179,15 @@
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdXR4bGRnem9jdmZqY2plbWxrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUwMjI4OTQsImV4cCI6MjEwMDU5ODg5NH0.XmmfRPwOy4ZxW4OmHyNeYQY3SRIs2wLu-b3suLKV2XA'
     );
 
-    // Verificar se já está logado
+        // Verificar se já está logado
     (async () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('erro') === 'confirme-email') {
+        showToast('⚠️ Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada.', 'err');
+        return;
+      }
       const { data: { session } } = await sb.auth.getSession();
-      if (session) window.location.href = 'dashboard.html';
+      if (session && session.user.email_confirmed_at) window.location.href = 'dashboard.html';
     })();
 
     function switchTab(tab) {

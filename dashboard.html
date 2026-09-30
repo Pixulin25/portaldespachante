@@ -163,14 +163,16 @@
 <nav class="sidebar-nav">
          <a class="nav-item" onclick="showPanel('perfil',this)" style="background:#dcdcdc;font-weight:bold"><span class="icon">👤</span> Minha Conta</a>
 
-    <div class="nav-group-label" onclick="toggleGrupo('consultas')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+       <div class="nav-group-label" onclick="toggleGrupo('consultas')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
       <span>Consultas & Pedidos</span><span id="arrow-consultas">▾</span>
     </div>
     <div id="grupo-consultas" style="max-height:400px;overflow:hidden;transition:max-height .3s">
-      <a class="nav-item active" onclick="showPanel('historico',this)"><span class="icon">🕐</span> Histórico de Consultas</a>
-      <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Pedidos CRLV-e</a>
-      <a class="nav-item" onclick="showPanel('inicio',this)"><span class="icon">📄</span> Pedidos CRV</a>
-      <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Histórico Comunicações</a>
+      <a class="nav-item active" onclick="abrirCategoria('Consulta Veicular',this)"><span class="icon">🔍</span> Consulta Veicular</a>
+      <a class="nav-item" onclick="abrirCategoria('CRV',this)"><span class="icon">🔐</span> CRV</a>
+      <a class="nav-item" onclick="abrirCategoria('Outros Serviços',this)"><span class="icon">📁</span> Outros Serviços</a>
+      <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Emitir CRLV-e</a>
+      <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
+      <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">🕐</span> Histórico de Consultas</a>
     </div>
 
     <div class="nav-group-label" onclick="toggleGrupo('fin')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
@@ -451,7 +453,9 @@ function filtrarCategoria(cat, el) {
   if (el) el.classList.add('active');
   document.getElementById('search-servicos').value = '';
   aplicarFiltroServicos();
+  showPanel('inicio', null);
 }
+  function filtrarCategoria(cat, el) {
 
 function filtrarServicos(q) {
   aplicarFiltroServicos(q);

@@ -443,9 +443,24 @@ function renderServicos(lista, containerId) {
   `).join('');
 }
 
+let categoriaAtual = 'Consulta Veicular';
+
+function filtrarCategoria(cat, el) {
+  categoriaAtual = cat;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('search-servicos').value = '';
+  aplicarFiltroServicos();
+}
+
 function filtrarServicos(q) {
-  const f = SERVICOS.filter(s => s.nome.toLowerCase().includes(q.toLowerCase()));
-  renderServicos(f, 'servicos-lista');
+  aplicarFiltroServicos(q);
+}
+
+function aplicarFiltroServicos(q = '') {
+  let lista = categoriaAtual === 'Todos' ? SERVICOS : SERVICOS.filter(s => s.cat === categoriaAtual);
+  if (q) lista = lista.filter(s => s.nome.toLowerCase().includes(q.toLowerCase()));
+  renderServicos(lista, 'servicos-lista');
 }
 
 async function consultarServico(id) {
@@ -934,7 +949,7 @@ async function fazerLogout() {
 (function init() {
   buildEstadosGrid();
   buildPacotes();
-  renderServicos(SERVICOS, 'servicos-lista');
+  aplicarFiltroServicos();
   document.getElementById('stat-hoje').textContent = stats.hoje;
   document.getElementById('stat-ok').textContent = stats.ok;
   document.getElementById('stat-crlv').textContent = stats.crlv;

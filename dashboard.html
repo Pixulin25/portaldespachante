@@ -4,208 +4,216 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Portal Despachante — Dashboard</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁️</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Tahoma', 'MS Sans Serif', Arial, sans-serif;
-    background: #008080;
-    color: #000;
-    font-size: 12px;
-    display: flex;
-    min-height: 100vh;
-  }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:#0B1F3A; --blue:#1A4A8A; --sky:#2E86DE; --accent:#F4A733;
+      --light:#EEF4FF; --white:#FFFFFF; --gray:#6B7A99; --text:#1C2B40;
+      --border:#E4E9F2; --green:#27AE60; --red:#E03D3D; --sidebar-w:250px;
+    }
+    body { font-family:'Inter',sans-serif; background:#F7F9FC; color:var(--text); display:flex; min-height:100vh; font-size:14px; }
 
-  /* SIDEBAR */
-  .sidebar { width: 220px; background: #C0C0C0; border-right: 2px solid #808080; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 50; }
-  .sidebar-logo { padding: 10px; background: linear-gradient(90deg,#000080,#1084d0); color: white; font-weight: bold; font-size: 14px; border-bottom: 2px solid #808080; display: flex; align-items: center; gap: 6px; }
-  .sidebar-nav { flex: 1; padding: 6px; overflow-y: auto; }
-  .nav-group-label { font-size: 11px; font-weight: bold; color: #000080; background: #dcdcdc; padding: 4px 8px; margin: 4px 0 2px; border: 1px solid #808080; cursor: pointer; }
-  .nav-item {
-    display: flex; align-items: center; gap: 6px; padding: 5px 10px; cursor: pointer; color: #000;
-    font-size: 12px; margin-bottom: 2px; text-decoration: none;
-    background: #C0C0C0; border: 1px outset #C0C0C0;
-  }
-  .nav-item:hover { background: #dcdcdc; }
-  .nav-item.active { background: #000080; color: white; border: 1px inset #C0C0C0; }
-  .nav-item .icon { font-size: 12px; }
-  .sidebar-user { padding: 8px; border-top: 2px solid #808080; display: flex; align-items: center; gap: 6px; background: #dcdcdc; }
-  .avatar { width: 28px; height: 28px; background: #000080; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; border: 1px outset #C0C0C0; }
-  .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 11px; font-weight: bold; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-role { font-size: 10px; color: #333; }
+    /* SIDEBAR */
+    .sidebar { width:var(--sidebar-w); background:var(--white); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; height:100vh; z-index:50; }
+    .sidebar-logo { padding:1.4rem 1.4rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; color:var(--navy); display:flex; align-items:center; gap:.6rem; border-bottom:1px solid var(--border); }
+    .sidebar-logo-icon { width:38px; height:38px; background:var(--sky); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+    .sidebar-nav { flex:1; padding:1rem 0; overflow-y:auto; }
+    .nav-group-label { font-size:.72rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--sky); padding:1rem 1.3rem .5rem; }
+    .nav-item { display:flex; align-items:center; gap:.7rem; padding:.62rem 1.3rem; cursor:pointer; color:var(--text); font-size:.87rem; font-weight:500; transition:all .15s; border-left:3px solid transparent; text-decoration:none; }
+    .nav-item:hover { background:var(--light); }
+    .nav-item.active { color:var(--sky); background:var(--light); border-left-color:var(--sky); font-weight:700; }
+    .nav-item .icon { font-size:1rem; width:18px; text-align:center; }
 
-  /* MAIN */
-  .main { margin-left: 220px; flex: 1; background: #008080; }
-  .topbar { background: linear-gradient(90deg,#000080,#1084d0); color: white; padding: 0 16px; height: 34px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; }
-  .topbar-title { font-size: 13px; font-weight: bold; }
-  .topbar-right { display: flex; align-items: center; gap: 8px; }
-  .credits-pill { background: #C0C0C0; border: 2px inset #C0C0C0; padding: 3px 10px; font-size: 11px; font-weight: bold; color: #000080; }
-  .btn-topo { background: #C0C0C0; border: 2px outset #C0C0C0; color: #000; padding: 3px 10px; font-size: 11px; font-weight: bold; cursor: pointer; }
-  .content { padding: 12px; }
-  .panel { display: none; }
-  .panel.active { display: block; }
+    /* MAIN */
+    .main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; }
+    .topbar { background:var(--white); border-bottom:1px solid var(--border); padding:0 2rem; height:68px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:40; }
+    .topbar-title { display:flex; align-items:center; gap:.6rem; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; color:var(--navy); }
+    .topbar-title .menu-ic { color:var(--gray); font-size:1.2rem; cursor:pointer; }
+    .topbar-right { display:flex; align-items:center; gap:1.1rem; }
+    .bell { width:38px; height:38px; border-radius:50%; background:var(--light); display:flex; align-items:center; justify-content:center; font-size:1.1rem; cursor:pointer; color:var(--sky); }
+    .topbar-user { display:flex; align-items:center; gap:.7rem; }
+    .avatar-top { width:38px; height:38px; border-radius:50%; background:var(--sky); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.9rem; }
+    .topbar-user-info .un { font-weight:700; font-size:.87rem; color:var(--navy); }
+    .topbar-user-info .us { font-size:.78rem; color:var(--gray); }
 
-  /* SEARCH */
-  .search-box { position: relative; margin-bottom: 12px; }
-  .search-box input { width: 100%; padding: 5px 10px; border: 2px inset #C0C0C0; font-size: 12px; font-family: 'Tahoma'; background: white; }
-  .content h2 { font-size: 14px; font-weight: bold; color: #000080; margin-bottom: 10px; background: #dcdcdc; padding: 4px 8px; border: 1px solid #808080; }
+    /* CONTENT */
+    .content { padding:2rem; flex:1; }
+    .panel { display:none; }
+    .panel.active { display:block; }
 
-  /* GRID DE SERVIÇOS */
-  .servicos-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  @media(max-width:1400px){ .servicos-grid{ grid-template-columns:repeat(3,1fr);} }
-  @media(max-width:1000px){ .servicos-grid{ grid-template-columns:repeat(2,1fr);} }
-  @media(max-width:640px){ .servicos-grid{ grid-template-columns:1fr;} }
+    /* SEARCH */
+    .search-box { position:relative; margin-bottom:1.8rem; max-width:100%; }
+    .search-box input {
+      width:100%; padding:.9rem 1.1rem .9rem 2.9rem; border:1.5px solid var(--border);
+      border-radius:10px; font-size:.92rem; font-family:'Inter',sans-serif; color:var(--text);
+      outline:none; background:var(--white); transition:border-color .2s;
+    }
+    .search-box input:focus { border-color:var(--sky); }
+    .search-box .si { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--sky); font-size:1rem; }
 
-  .service-card { background: #C0C0C0; border: 2px outset #C0C0C0; padding: 8px; display: flex; flex-direction: column; }
-  .service-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
-  .service-title-wrap { display: flex; align-items: center; gap: 6px; }
-  .service-icon { width: 26px; height: 26px; background: #dcdcdc; border: 1px inset #C0C0C0; display: flex; align-items: center; justify-content: center; font-size: 13px; }
-  .service-title { font-weight: bold; font-size: 11px; color: #000080; }
-  .service-badge-new { font-size: 9px; font-weight: bold; color: #fff; background: #ff0000; padding: 1px 4px; }
-  .service-price { font-weight: bold; font-size: 13px; color: #006400; margin-bottom: 4px; }
-  .service-price.free { color: #008000; }
-  .service-desc { font-size: 10px; color: #333; margin-bottom: 6px; }
-  .service-feats { list-style: none; margin-bottom: 6px; }
-  .service-feats li { font-size: 10px; color: #000; padding: 1px 0; }
-  .service-feats li::before { content: '✓ '; color: #006400; font-weight: bold; }
-  .service-inputs { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
-  .service-inputs label { font-size: 10px; font-weight: bold; display: block; margin-bottom: 2px; }
-  .service-inputs input, .service-inputs select { width: 100%; padding: 4px 6px; border: 2px inset #C0C0C0; font-size: 11px; font-family: 'Tahoma'; background: white; }
-  .placa-input { text-transform: uppercase; font-weight: bold; }
-  .btn-consultar { background: #C0C0C0; border: 2px outset #C0C0C0; color: #000; padding: 5px; font-size: 11px; font-weight: bold; cursor: pointer; width: 100%; }
-  .btn-consultar:active { border: 2px inset #C0C0C0; }
-  .btn-consultar:disabled { opacity: .5; }
-  .btn-voltar { background: #C0C0C0; border: 2px outset #C0C0C0; color: #000080; padding: 5px 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .content h2 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; color:var(--navy); margin-bottom:1.2rem; }
 
-  /* RESULTADO */
-  .resultado { display: none; margin-top: 8px; border-top: 1px solid #808080; padding-top: 8px; }
-  .resultado.show { display: block; }
-  .resultado-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
-  .placa-badge { background: #000080; color: white; font-weight: bold; font-size: 12px; padding: 2px 8px; border: 1px outset #C0C0C0; }
-  .provedor-badge { background: #dcdcdc; color: #000080; font-size: 10px; font-weight: bold; padding: 2px 6px; border: 1px solid #808080; }
-  .status-badge { padding: 2px 8px; font-size: 10px; font-weight: bold; border: 1px solid; }
-  .status-ok { background: #90EE90; color: #006400; border-color: #006400; }
-  .status-alert { background: #FFCCCC; color: #8B0000; border-color: #8B0000; }
-  .res-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 4px; }
-  .res-item { background: white; border: 1px inset #C0C0C0; padding: 4px 6px; }
-  .res-item .rl { font-size: 9px; color: #666; font-weight: bold; text-transform: uppercase; }
-  .res-item .rv { font-size: 11px; font-weight: bold; color: #000080; word-break: break-word; }
-  .res-raw { background: #000; color: #0f0; padding: 8px; font-size: 10px; font-family: monospace; overflow: auto; max-height: 250px; margin-top: 6px; white-space: pre-wrap; display: none; border: 2px inset #C0C0C0; }
-  .res-raw.show { display: block; }
-  .res-actions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-  .btn-outline { background: #C0C0C0; border: 2px outset #C0C0C0; color: #000; padding: 3px 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
-  .btn-sky-sm { background: #C0C0C0; border: 2px outset #C0C0C0; color: #000080; padding: 3px 8px; font-size: 10px; font-weight: bold; cursor: pointer; }
+    /* SERVICE CARDS GRID */
+    .servicos-grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:1rem; }
+    @media(max-width:1400px){ .servicos-grid{ grid-template-columns:repeat(3,1fr);} }
+    @media(max-width:1000px){ .servicos-grid{ grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:640px){ .servicos-grid{ grid-template-columns:1fr;} }
 
-  /* STATS */
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 8px; margin-bottom: 12px; }
-  .stat-card { background: #C0C0C0; border: 2px outset #C0C0C0; padding: 8px; }
-  .stat-card .label { font-size: 10px; color: #333; font-weight: bold; }
-  .stat-card .value { font-size: 18px; font-weight: bold; color: #000080; }
+    .service-card {
+      background:var(--white); border:1px solid var(--border); border-radius:14px;
+      padding:1.3rem; display:flex; flex-direction:column; transition:box-shadow .2s, border-color .2s;
+    }
+    .service-card:hover { border-color:var(--sky); box-shadow:0 6px 20px rgba(26,74,138,0.08); }
+    .service-head { display:flex; align-items:flex-start; justify-content:space-between; gap:.6rem; margin-bottom:.7rem; }
+    .service-title-wrap { display:flex; align-items:center; gap:.6rem; }
+    .service-icon { width:38px; height:38px; background:var(--light); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0; }
+    .service-title { font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; color:var(--navy); line-height:1.25; }
+    .service-badge-new { font-size:.62rem; font-weight:700; color:var(--accent); background:#FFF6E6; padding:.12rem .4rem; border-radius:100px; margin-left:.3rem; vertical-align:middle; white-space:nowrap; }
+    .service-price { font-family:'Syne',sans-serif; font-weight:800; font-size:1.05rem; color:var(--sky); white-space:nowrap; }
+    .service-price.free { color:var(--green); }
+    .service-desc { font-size:.8rem; color:var(--gray); margin-bottom:.8rem; line-height:1.45; flex:1; }
+    .service-feats { list-style:none; margin-bottom:1rem; }
+    .service-feats li { font-size:.78rem; color:var(--text); display:flex; align-items:center; gap:.4rem; padding:.15rem 0; }
+    .service-feats li::before { content:'✓'; color:var(--sky); font-weight:700; }
+    .service-inputs { display:flex; flex-direction:column; gap:.6rem; margin-bottom:.8rem; }
+    .service-inputs label { display:block; font-size:.75rem; font-weight:600; color:var(--text); margin-bottom:.3rem; }
+    .service-inputs input, .service-inputs select {
+      width:100%; padding:.55rem .8rem; border:1.5px solid var(--border); border-radius:8px;
+      font-size:.85rem; font-family:'Inter',sans-serif; color:var(--text); outline:none; transition:border-color .2s;
+    }
+    .service-inputs input:focus, .service-inputs select:focus { border-color:var(--sky); }
+    .placa-input { text-transform:uppercase; letter-spacing:.06em; font-weight:700 !important; }
+    .btn-consultar {
+      background:var(--sky); color:var(--white); border:none; padding:.65rem 1rem;
+      border-radius:9px; font-size:.85rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif;
+      transition:background .2s; width:100%;
+    }
+    .btn-consultar:hover { background:#1a70cc; }
+    .btn-consultar:disabled { opacity:.5; cursor:not-allowed; }
 
-  /* TABELA */
-  .table-card { background: #C0C0C0; border: 2px outset #C0C0C0; margin-top: 10px; padding: 6px; }
-  .table-header { background: linear-gradient(90deg,#000080,#1084d0); color: white; padding: 4px 8px; font-weight: bold; font-size: 11px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-  .table-header h3 { color: white; font-size: 11px; }
-  .table-search { border: 2px inset #C0C0C0; padding: 3px 6px; font-size: 10px; font-family: 'Tahoma'; width: 180px; }
-  table { width: 100%; border-collapse: collapse; background: white; border: 2px inset #C0C0C0; }
-  th { background: #C0C0C0; border: 1px solid #808080; padding: 4px 6px; font-size: 10px; text-align: left; font-weight: bold; }
-  td { border: 1px solid #ddd; padding: 4px 6px; font-size: 10px; }
-  tr:nth-child(even) { background: #f4f4f4; }
-  .td-placa { font-weight: bold; }
-  .tag { padding: 1px 6px; font-size: 9px; font-weight: bold; border: 1px solid; }
-  .tag-ok { background: #90EE90; color: #006400; border-color: #006400; }
-  .tag-pend { background: #FFFF99; color: #806000; border-color: #806000; }
-  .vazio { text-align: center; padding: 20px; color: #666; font-size: 11px; }
+    /* RESULTADO */
+    .resultado { display:none; margin-top:1rem; border-top:2px solid var(--light); padding-top:1rem; }
+    .resultado.show { display:block; }
+    .resultado-header { display:flex; align-items:center; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; }
+    .placa-badge { background:var(--navy); color:var(--white); font-family:'Syne',sans-serif; font-weight:800; font-size:.85rem; padding:.3rem .7rem; border-radius:7px; letter-spacing:.08em; }
+    .provedor-badge { background:var(--light); color:var(--sky); font-size:.68rem; font-weight:700; padding:.2rem .6rem; border-radius:100px; border:1px solid var(--border); }
+    .status-badge { padding:.25rem .7rem; border-radius:100px; font-size:.7rem; font-weight:700; }
+    .status-ok { background:#EAFAF1; color:var(--green); }
+    .status-alert { background:#FEF0F0; color:var(--red); }
+    .res-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:.5rem; }
+    .res-item { background:var(--light); border-radius:8px; padding:.6rem; }
+    .res-item .rl { font-size:.65rem; color:var(--gray); font-weight:500; margin-bottom:.1rem; text-transform:uppercase; }
+    .res-item .rv { font-size:.78rem; font-weight:600; color:var(--navy); word-break:break-word; }
+    .res-raw { background:#1e1e2e; color:#cdd6f4; border-radius:8px; padding:.8rem; font-size:.68rem; font-family:monospace; overflow:auto; max-height:250px; margin-top:.6rem; white-space:pre-wrap; display:none; }
+    .res-raw.show { display:block; }
+    .res-actions { display:flex; gap:.5rem; margin-top:.8rem; flex-wrap:wrap; }
+    .btn-outline { background:var(--white); color:var(--text); border:1.5px solid var(--border); padding:.4rem .8rem; border-radius:7px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
+    .btn-sky-sm { background:var(--sky); color:var(--white); border:none; padding:.4rem .8rem; border-radius:7px; font-size:.75rem; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif; }
 
-  /* ESTADOS CRLV */
-  .estados-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(75px,1fr)); gap: 4px; margin-bottom: 8px; }
-  .estado-btn { padding: 4px; border: 2px outset #C0C0C0; background: #C0C0C0; cursor: pointer; text-align: center; }
-  .estado-btn.sel { border: 2px inset #C0C0C0; background: #000080; color: white; }
-  .estado-uf { font-size: 10px; font-weight: bold; }
-  .estado-preco { font-size: 9px; font-weight: bold; color: #006400; }
-  .badge-ag { font-size: 8px; color: #ff0000; }
+    /* STATS TOPO */
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.8rem; }
+    .stat-card { background:var(--white); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.3rem; }
+    .stat-card .label { font-size:.75rem; color:var(--gray); font-weight:500; margin-bottom:.35rem; }
+    .stat-card .value { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--navy); line-height:1; }
 
-  /* PACOTES */
-  .credits-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 8px; margin-bottom: 16px; }
-  .credit-pack { border: 2px outset #C0C0C0; background: #C0C0C0; padding: 10px; text-align: center; cursor: pointer; position: relative; }
-  .credit-pack.popular { border: 2px inset #C0C0C0; background: #dcdcdc; }
-  .pack-badge { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); background: #ff0000; color: white; font-size: 8px; font-weight: bold; padding: 1px 6px; white-space: nowrap; }
-  .pack-valor { font-size: 16px; font-weight: bold; color: #000080; }
-  .pack-sub { font-size: 9px; color: #333; margin-top: 3px; }
-  .btn-recarregar { margin-top: 8px; width: 100%; background: #C0C0C0; border: 2px outset #C0C0C0; padding: 5px; font-weight: bold; cursor: pointer; font-size: 10px; }
+    /* TABELA */
+    .table-card { background:var(--white); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-top:1.5rem; }
+    .table-header { padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.8rem; }
+    .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; color:var(--navy); font-size:.95rem; }
+    .table-search { padding:.5rem .9rem; border:1.5px solid var(--border); border-radius:8px; font-size:.82rem; font-family:'Inter',sans-serif; outline:none; width:200px; }
+    table { width:100%; border-collapse:collapse; }
+    th { background:#FAFBFD; font-size:.72rem; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.04em; padding:.75rem 1.3rem; text-align:left; border-bottom:1px solid var(--border); }
+    td { padding:.8rem 1.3rem; font-size:.83rem; border-bottom:1px solid #F0F4FA; }
+    tr:last-child td { border-bottom:none; }
+    .td-placa { font-weight:700; font-family:'Syne',sans-serif; letter-spacing:.05em; }
+    .tag { display:inline-block; padding:.2rem .6rem; border-radius:100px; font-size:.7rem; font-weight:700; }
+    .tag-ok{background:#EAFAF1;color:var(--green)} .tag-pend{background:#FFF8EC;color:#C0822A}
+    .vazio { text-align:center; padding:2.5rem; color:var(--gray); }
 
-  /* LOADING */
-  .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 400; opacity: 0; pointer-events: none; }
-  .loading-overlay.show { opacity: 1; pointer-events: all; }
-  .spinner-big { width: 40px; height: 40px; border: 4px solid #C0C0C0; border-top-color: #000080; border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: 8px; }
-  .loading-overlay p { color: white; font-size: 12px; font-weight: bold; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    /* ESTADOS CRLV */
+    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(85px,1fr)); gap:.5rem; margin-bottom:1rem; }
+    .estado-btn { padding:.5rem .3rem; border:1.5px solid var(--border); border-radius:9px; background:var(--white); cursor:pointer; font-family:'Inter',sans-serif; transition:all .15s; text-align:center; }
+    .estado-btn:hover { border-color:var(--sky); }
+    .estado-btn.sel { border-color:var(--sky); background:var(--light); }
+    .estado-uf { font-size:.8rem; font-weight:700; color:var(--text); }
+    .estado-preco { font-size:.68rem; font-weight:700; color:var(--sky); margin-top:2px; }
+    .badge-ag { font-size:.58rem; display:block; color:var(--accent); }
 
-  /* TOAST */
-  .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(80px); background: #C0C0C0; border: 2px outset #C0C0C0; color: #000; padding: 8px 16px; font-size: 11px; font-weight: bold; z-index: 300; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.ok { border-left: 5px solid #008000; }
-  .toast.err { border-left: 5px solid #ff0000; }
+    /* PACOTES CREDITO */
+    .credits-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; margin-bottom:2rem; }
+    .credit-pack { border:2px solid var(--border); border-radius:14px; padding:1.3rem 1rem; text-align:center; cursor:pointer; transition:all .2s; background:var(--white); position:relative; }
+    .credit-pack:hover { border-color:var(--sky); transform:translateY(-3px); }
+    .credit-pack.popular { border-color:var(--sky); background:var(--light); }
+    .pack-badge { position:absolute; top:-11px; left:50%; transform:translateX(-50%); background:var(--sky); color:white; font-size:.65rem; font-weight:700; padding:.2rem .6rem; border-radius:100px; white-space:nowrap; }
+    .pack-valor { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:var(--navy); }
+    .pack-sub { font-size:.75rem; color:var(--gray); margin-top:.35rem; }
+    .btn-recarregar { margin-top:.9rem; width:100%; background:var(--sky); color:white; border:none; padding:.55rem; border-radius:8px; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; font-size:.82rem; }
 
-  @media(max-width:900px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .content{padding:8px} }
-</style>
+    /* LOADING */
+    .loading-overlay { position:fixed; inset:0; background:rgba(11,31,58,0.75); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:400; opacity:0; pointer-events:none; transition:opacity .3s; }
+    .loading-overlay.show { opacity:1; pointer-events:all; }
+    .spinner-big { width:52px; height:52px; border:4px solid rgba(255,255,255,0.2); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:1rem; }
+    .loading-overlay p { color:var(--white); font-size:.95rem; font-weight:500; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(80px); background:var(--navy); color:var(--white); padding:.85rem 1.6rem; border-radius:10px; font-size:.88rem; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,0.25); transition:transform .35s cubic-bezier(.34,1.56,.64,1); z-index:300; white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.ok { border-left:4px solid var(--green); }
+    .toast.err { border-left:4px solid var(--red); }
+
+    @media(max-width:900px){ .sidebar{transform:translateX(-100%)} .main{margin-left:0} .topbar{padding:0 1rem} .content{padding:1.2rem} }
+  </style>
 </head>
 <body>
-  <aside class="sidebar">
- <div class="sidebar-logo" style="justify-content:center;text-align:center;flex-direction:column;gap:.3rem;padding:1.6rem 1rem">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
     <div class="sidebar-logo-icon">👁️</div>
-    <div>Portal <span style="color:var(--accent)">Despachante</span></div>
+    Portal Despachante
   </div>
-<nav class="sidebar-nav">
-         <a class="nav-item" onclick="showPanel('perfil',this)" style="background:#dcdcdc;font-weight:bold"><span class="icon">👤</span> Minha Conta</a>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Minha Conta</div>
+    <a class="nav-item" onclick="showPanel('perfil',this)"><span class="icon">👤</span> Minha Conta</a>
 
-       <div class="nav-group-label" onclick="toggleGrupo('consultas')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-      <span>Consultas & Pedidos</span><span id="arrow-consultas">▾</span>
-    </div>
-    <div id="grupo-consultas" style="max-height:400px;overflow:hidden;transition:max-height .3s">
-      <a class="nav-item active" onclick="abrirCategoria('Consulta Veicular',this)"><span class="icon">🔍</span> Consulta Veicular</a>
-      <a class="nav-item" onclick="abrirCategoria('CRV',this)"><span class="icon">🔐</span> CRV</a>
-      <a class="nav-item" onclick="abrirCategoria('Outros Serviços',this)"><span class="icon">📁</span> Outros Serviços</a>
-      <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> Emitir CRLV-e</a>
-      <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
-      <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">🕐</span> Histórico de Consultas</a>
-    </div>
+    <div class="nav-group-label">Consultas & Pedidos</div>
+    <a class="nav-item active" onclick="abrirCategoria('Consulta Veicular',this)"><span class="icon">🔍</span> Consulta Veicular</a>
+    <a class="nav-item" onclick="abrirCategoria('CRV',this)"><span class="icon">📄</span> CRV</a>
+    <a class="nav-item" onclick="abrirCategoria('Outros Serviços',this)"><span class="icon">✨</span> Outros Serviços</a>
+    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📝</span> Pedidos CRLV-e</a>
+    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
+    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico de Consultas</a>
 
-    <div class="nav-group-label" onclick="toggleGrupo('fin')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between">
-      <span>Financeiro</span><span id="arrow-fin">▾</span>
-    </div>
-    <div id="grupo-fin" style="max-height:200px;overflow:hidden;transition:max-height .3s">
-      <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Recarga de Saldo</a>
-    </div>
+    <div class="nav-group-label">Financeiro</div>
+    <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Recarga de Saldo</a>
   </nav>
 </aside>
 
+<!-- MAIN -->
 <div class="main">
   <header class="topbar">
     <div class="topbar-title"><span class="menu-ic">☰</span> Dashboard</div>
     <div class="topbar-right">
       <div class="bell" onclick="showToast('Sem novas notificações','ok')">🔔</div>
-            <div class="topbar-user" style="display:flex;align-items:center;gap:.7rem">
+      <div class="topbar-user">
         <div class="avatar-top" id="avatar-initials">U</div>
-        <div class="topbar-user-info" style="text-align:right;line-height:1.35">
+        <div class="topbar-user-info">
           <div class="un" id="user-name">Carregando...</div>
           <div class="us" id="user-creditos">Saldo: R$ 0,00</div>
         </div>
-             <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:nowrap;white-space:nowrap">
-        <div class="avatar-top" id="avatar-initials">U</div>
-        <div style="text-align:right;line-height:1.3;white-space:nowrap">
-          <div id="user-name" style="font-weight:bold;font-size:12px">Carregando...</div>
-          <div id="user-creditos" style="font-size:10px">Saldo: R$ 0,00</div>
-        </div>
-        <button onclick="fazerLogout()" title="Sair" style="background:#C0C0C0!important;border:2px outset #C0C0C0!important;color:#CC0000!important;font-weight:bold!important;cursor:pointer;font-size:11px!important;padding:5px 10px!important;white-space:nowrap;flex-shrink:0">SAIR</button>
-      </div>  </header>
+        <button onclick="fazerLogout()" title="Sair" style="background:#fff;border:1.5px solid #E03D3D;color:#E03D3D;font-weight:800;cursor:pointer;font-size:.78rem;padding:.5rem 1rem;border-radius:8px;margin-left:.5rem;white-space:nowrap;">SAIR</button>
+      </div>
+    </div>
+  </header>
 
   <div class="content">
 
+    <!-- INÍCIO -->
     <div class="panel active" id="panel-inicio">
       <div class="stats-grid">
         <div class="stat-card"><div class="label">🔍 Consultas hoje</div><div class="value" id="stat-hoje">0</div></div>
@@ -218,14 +226,13 @@
         <span class="si">🔎</span>
         <input type="text" id="search-servicos" placeholder="Pesquise qualquer assunto no sistema..." oninput="filtrarServicos(this.value)" />
       </div>
-      <h2>Serviços Disponíveis</h2>
+      <h2 id="servicos-titulo">Consulta Veicular</h2>
       <div class="servicos-grid" id="servicos-lista"></div>
     </div>
 
-<div class="panel" id="panel-crlv">
-      <button class="btn-voltar" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem;font-weight:800">← Voltar ao Dashboard</button>
-  
-      <div class="service-card">
+    <!-- CRLV -->
+    <div class="panel" id="panel-crlv">
+      <div class="service-card" style="max-width:640px">
         <div class="service-head">
           <div class="service-title-wrap"><div class="service-icon">📄</div><span class="service-title">Emitir CRLV-e Digital</span></div>
         </div>
@@ -251,7 +258,9 @@
       </div>
     </div>
 
-   <div class="panel" id="panel-comunicado">
+    <!-- COMUNICADO -->
+    <div class="panel" id="panel-comunicado">
+      <div class="service-card" style="max-width:640px">
         <div class="service-head">
           <div class="service-title-wrap"><div class="service-icon">📝</div><span class="service-title">Comunicado de Venda</span></div>
           <div class="service-price">R$ 30,00</div>
@@ -276,30 +285,21 @@
       </div>
     </div>
 
-<div class="panel" id="panel-historico">
-      <button class="btn-voltar" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem;font-weight:800">← Voltar ao Dashboard</button>
-      <div class="service-card">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:1rem">
-          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Placa</label><input id="filtro-placa" placeholder="EX: ABC1234" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;text-transform:uppercase" oninput="aplicarFiltrosHistorico()" /></div>
-          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Tipo de Consulta</label>
-            <select id="filtro-tipo" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()">
-              <option value="">Todos</option>
-            </select>
-          </div>
-          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Data Inicial</label><input type="date" id="filtro-data-ini" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()" /></div>
-          <div><label style="font-size:.75rem;font-weight:600;display:block;margin-bottom:.3rem">Data Final</label><input type="date" id="filtro-data-fim" style="width:100%;padding:.55rem .8rem;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem" onchange="aplicarFiltrosHistorico()" /></div>
+    <!-- HISTÓRICO -->
+    <div class="panel" id="panel-historico">
+      <div class="table-card" style="margin-top:0">
+        <div class="table-header">
+          <h3>Histórico de Consultas</h3>
+          <input class="table-search" placeholder="Buscar placa..." oninput="filtrarHistorico(this.value)" />
         </div>
-      </div>
-      <div class="table-card">
-        <div class="table-header"><h3>Histórico de Consultas</h3></div>
-        <table><thead><tr><th>Placa</th><th>Tipo de Consulta</th><th>Data</th><th>Status</th><th>Fonte</th></tr></thead>
+        <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Valor</th><th>Status</th></tr></thead>
         <tbody id="tbody-historico"></tbody></table>
-        <div id="historico-vazio" class="vazio" style="display:none">Nenhuma consulta realizada ainda.</div>
+        <div id="historico-vazio" class="vazio" style="display:none"><div style="font-size:2rem;margin-bottom:.6rem">📋</div><p>Nenhuma consulta realizada ainda.</p></div>
       </div>
     </div>
 
+    <!-- CRÉDITOS -->
     <div class="panel" id="panel-creditos">
-      <button class="btn-voltar" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem;font-weight:800">← Voltar ao Dashboard</button>
       <h2>💳 Recarga de Saldo</h2>
       <p style="color:var(--gray);font-size:.85rem;margin-bottom:1.5rem;margin-top:-.8rem">Escolha o valor. Pagamento via PIX, cartão ou boleto pelo Mercado Pago.</p>
       <div class="credits-grid" id="pacotes-grid"></div>
@@ -313,8 +313,8 @@
       </div>
     </div>
 
+    <!-- PERFIL -->
     <div class="panel" id="panel-perfil">
-<button class="btn-voltar" onclick="showPanel('inicio', document.querySelector('.nav-item'))" style="margin-bottom:1rem;font-weight:800">← Voltar ao Dashboard</button>
       <div class="service-card" style="max-width:520px">
         <div class="service-title-wrap" style="margin-bottom:1.2rem"><div class="service-icon">👤</div><span class="service-title">Minha Conta</span></div>
         <div style="display:grid;gap:.9rem">
@@ -331,75 +331,73 @@
 <div class="loading-overlay" id="loading"><div class="spinner-big"></div><p id="loading-msg">Consultando...</p></div>
 <div class="toast" id="toast"></div>
 
-<a href="https://wa.me/5551993802640" target="_blank" style="position:fixed;bottom:1.8rem;right:1.8rem;width:58px;height:58px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(37,211,102,0.4);z-index:250;text-decoration:none;transition:transform .2s" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
-  <svg viewBox="0 0 24 24" width="30" height="30" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.531 5.845L.057 23.17a.75.75 0 0 0 .92.92l5.333-1.476A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.95 9.95 0 0 1-5.118-1.415l-.368-.219-3.812 1.055 1.055-3.808-.225-.376A9.952 9.952 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-</a>
-
 <script>
+// ============================================================
+//  CATÁLOGO DE SERVIÇOS
+// ============================================================
 const SERVICOS = [
-  { id:'estadual', cat:'Consulta Veicular', icon:'📍', nome:'Base Estadual', preco:5.00, endpoint:'/consultar-placa-v2', campo:'placa',
+  { id:'estadual',  icon:'📍', nome:'Base Estadual', preco:5.00, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Consulta Veicular',
     desc:'Exibe os dados do veículo registrados no estado completo.', feats:['Débitos de licenciamento','IPVA e restrições','Gravame e emplacamento'] },
-  { id:'nacional', cat:'Consulta Veicular', icon:'🌎', nome:'Base Nacional', preco:5.00, endpoint:'/consultar-placa-nacional', campo:'placa',
+  { id:'nacional',  icon:'🌎', nome:'Base Nacional', preco:5.00, endpoint:'/consultar-placa-nacional', campo:'placa', cat:'Consulta Veicular',
     desc:'Base oficial do DENATRAN com informações consolidadas.', feats:['Dados cadastrais','Restrições e emplacamento','Identificador de chassi'] },
-  { id:'completa', cat:'Consulta Veicular', icon:'📋', nome:'Consulta Completa', preco:12.00, endpoint:'/consultar-placa-v3', campo:'placa',
+  { id:'completa',  icon:'📋', nome:'Consulta Completa', preco:12.00, endpoint:'/consultar-placa-v3', campo:'placa', cat:'Consulta Veicular',
     desc:'Laudo veicular completo: BIN/RF, restrições, gravame, débitos, proprietários, KM, RENAJUD, multas, recall e FIPE.', feats:['Restrições e gravame','Proprietários, KM e FIPE','Multas e RENAJUD'] },
-  { id:'cautelar', cat:'Consulta Veicular', icon:'🛡️', nome:'Consulta Cautelar', preco:29.90, endpoint:'/consultar-cautelar', campo:'placa',
+  { id:'cautelar',  icon:'🛡️', nome:'Consulta Cautelar', preco:29.90, endpoint:'/consultar-cautelar', campo:'placa', cat:'Consulta Veicular',
     desc:'BIN Estadual, Proprietário atual, Leilão simples + Leilão completo com score.', feats:['BIN Estadual','Proprietário atual','Leilão completo com score'] },
-  { id:'gravame', cat:'Consulta Veicular', icon:'🔒', nome:'Consulta Gravame', preco:5.00, endpoint:'/gravame', campo:'placa',
+  { id:'gravame',   icon:'🔒', nome:'Consulta Gravame', preco:5.00, endpoint:'/gravame', campo:'placa', cat:'Consulta Veicular',
     desc:'Através da placa, verifique se há algum gravame registrado no veículo.', feats:['Consulta via placa','Verificação de gravame','Detalhes completos'] },
-  { id:'debito', cat:'Consulta Veicular', icon:'💵', nome:'Débito + Boleto', preco:5.00, endpoint:'/consultar-debito', campo:'placa',
+  { id:'debito',    icon:'💵', nome:'Débito + Boleto', preco:5.00, endpoint:'/consultar-debito', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulta de débitos veiculares com guia/boleto em PDF, quando disponível pelo estado.', feats:['Débitos por placa','Guia/boleto quando disponível','PDF automático'] },
-  { id:'fipe', cat:'Consulta Veicular', icon:'📈', nome:'Placa + FIPE', preco:0, endpoint:'/consultar-placa-fipe', campo:'placa',
+  { id:'fipe',      icon:'📈', nome:'Placa + FIPE', preco:0, endpoint:'/consultar-placa-fipe', campo:'placa', cat:'Consulta Veicular',
     desc:'Relatório completo com informações da placa e valor FIPE.', feats:['Dados da placa','Valor FIPE atualizado','Relatório completo'] },
-  { id:'proprietario', cat:'Consulta Veicular', icon:'👤', nome:'Consulta Rápida por Placa', preco:3.00, endpoint:'/proprietario-atual', campo:'placa',
+  { id:'proprietario', icon:'👤', nome:'Consulta Rápida por Placa', preco:3.00, endpoint:'/proprietario-atual', campo:'placa', cat:'Consulta Veicular',
     desc:'Informa o proprietário atual do veículo com restrições.', feats:['Consulta via placa','Proprietário atual','Restrições'] },
-  { id:'histprop', cat:'Consulta Veicular', icon:'🕓', nome:'Histórico de Proprietários', preco:7.00, endpoint:'/consultar-historico-proprietario', campo:'placa', novo:true,
+  { id:'histprop',  icon:'🕓', nome:'Histórico de Proprietários', preco:7.00, endpoint:'/consultar-historico-proprietario', campo:'placa', novo:true, cat:'Consulta Veicular',
     desc:'Consulta do histórico de proprietário com retorno em PDF.', feats:['Consulta via placa','PDF imediato','Download direto'] },
-  { id:'km', cat:'Consulta Veicular', icon:'📏', nome:'Auto Quilometragem', preco:5.00, endpoint:'/auto-quilometragem', campo:'placa',
+  { id:'km',        icon:'📏', nome:'Auto Quilometragem', preco:5.00, endpoint:'/auto-quilometragem', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulta de quilometragem do veículo com retorno em PDF.', feats:['Consulta via placa','PDF imediato','Download direto'] },
-  { id:'motor', cat:'Consulta Veicular', icon:'⚙️', nome:'Consultar Motor', preco:5.00, endpoint:'/consultar-motor', campo:'placa', novo:true,
+  { id:'motor',     icon:'⚙️', nome:'Consultar Motor', preco:5.00, endpoint:'/consultar-motor', campo:'placa', novo:true, cat:'Consulta Veicular',
     desc:'Consulta pelo número do motor com retorno em PDF.', feats:['PDF imediato','Consulta por motor','Download direto'] },
-  { id:'renajud', cat:'Consulta Veicular', icon:'🗄️', nome:'Consulta Renajud', preco:7.00, endpoint:'/renajud', campo:'placa',
+  { id:'renajud',   icon:'🗄️', nome:'Consulta Renajud', preco:7.00, endpoint:'/renajud', campo:'placa', cat:'Consulta Veicular',
     desc:'CSV, RENAINF, RENAJUD, RECALL, BIN, Proprietário.', feats:['Consulta via placa','Dados completos','Múltiplas bases'] },
-  { id:'licenciamento', cat:'Consulta Veicular', icon:'📅', nome:'Licenciamento + BIN', preco:5.00, endpoint:'/licenciamento-bin', campo:'placa',
+  { id:'licenciamento', icon:'📅', nome:'Licenciamento + BIN', preco:5.00, endpoint:'/licenciamento-bin', campo:'placa', cat:'Consulta Veicular',
     desc:'Dados cadastrais, restrições, proprietário atual, Renajud, licenciamento pago.', feats:['Dados cadastrais','Restrições','Licenciamento pago'] },
-  { id:'chassi', cat:'Consulta Veicular', icon:'🔢', nome:'Consulta por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', novo:true,
+  { id:'chassi',    icon:'🔢', nome:'Consulta por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', novo:true, cat:'Consulta Veicular',
     desc:'Consulta pelo chassi (17 caracteres) com retorno em PDF.', feats:['PDF imediato','Consulta via chassi','Download direto'] },
-  { id:'leilaofoto', cat:'Consulta Veicular', icon:'📷', nome:'Foto Leilão', preco:9.90, endpoint:'/consultar-foto-leilao', campo:'placa',
+  { id:'leilaofoto',icon:'📷', nome:'Foto Leilão', preco:9.90, endpoint:'/consultar-foto-leilao', campo:'placa', cat:'Consulta Veicular',
     desc:'Retorna imagens do veículo em leilão, quando disponíveis.', feats:['Consulta via placa','Retorno em PDF','Download direto'] },
-  { id:'spc', cat:'Consulta Veicular', icon:'💳', nome:'Consulta SPC / CRED MAX', preco:9.99, endpoint:'/consultar-spc', campo:'placa', novo:true,
+  { id:'spc',       icon:'💳', nome:'Consulta SPC / CRED MAX', preco:9.99, endpoint:'/consultar-spc', campo:'placa', novo:true, cat:'Consulta Veicular',
     desc:'Pendências financeiras, CCF, protesto, ação judicial.', feats:['CPF/CNPJ','Pendências financeiras','Protesto e ações judiciais'] },
-
-  { id:'crv', cat:'CRV', icon:'🔐', nome:'Código de Segurança PDF', preco:10.00, endpoint:'/codigo-seguranca-crv', campo:'placa',
+  { id:'crv',       icon:'🔐', nome:'Código de Segurança PDF', preco:10.00, endpoint:'/codigo-seguranca-crv', campo:'placa', cat:'CRV',
     desc:'Através da placa, retorna o CRV Digital completo.', feats:['Consulta via placa','CRV Digital','Documento válido'] },
-  { id:'crvv2', cat:'CRV', icon:'🔐', nome:'Código de Segurança PDF V2', preco:24.90, endpoint:'/codigo-seguranca-crv-v2', campo:'placa', novo:true,
+  { id:'crvv2',     icon:'🔐', nome:'Código de Segurança PDF V2', preco:24.90, endpoint:'/codigo-seguranca-crv-v2', campo:'placa', novo:true, cat:'CRV',
     desc:'Nova versão do código de segurança PDF.', feats:['Consulta via placa','CRV Digital V2','Recursos ampliados'] },
-  { id:'crvnum', cat:'CRV', icon:'📄', nome:'Número CRV Digital', preco:24.90, endpoint:'/placa-crv', campo:'placa', novo:true,
+  { id:'crvnum',    icon:'📄', nome:'Número CRV Digital', preco:24.90, endpoint:'/placa-crv', campo:'placa', novo:true, cat:'CRV',
     desc:'Consulta via placa com retorno em PDF.', feats:['PDF imediato','Consulta via placa','Download direto'] },
-  { id:'crvpi', cat:'CRV', icon:'📄', nome:'Consultar CRV PI', preco:10.00, endpoint:'/consultar-crv-pi', campo:'placa',
+  { id:'crvpi',     icon:'📄', nome:'Consultar CRV PI', preco:10.00, endpoint:'/consultar-crv-pi', campo:'placa', cat:'CRV',
     desc:'Consulta de CRV específica do estado do Piauí.', feats:['Consulta via placa','Documento válido','PDF automático'] },
-  { id:'crvvalid', cat:'CRV', icon:'✅', nome:'Verifica Autenticidade CRV', preco:0, endpoint:'/validacao-crv', campo:'placa',
+  { id:'crvvalid',  icon:'✅', nome:'Verifica Autenticidade CRV', preco:0, endpoint:'/validacao-crv', campo:'placa', cat:'CRV',
     desc:'Verifique se o CRV é válido gratuitamente.', feats:['Validação CRV','Verificação gratuita','Confirmação de autenticidade'] },
-  { id:'atpvnum', cat:'CRV', icon:'📄', nome:'Número ATPV-E', preco:99.90, endpoint:'/numero-atpv-e', campo:'placa',
+  { id:'atpvnum',   icon:'📄', nome:'Número ATPV-E', preco:99.90, endpoint:'/numero-atpv-e', campo:'placa', cat:'CRV',
     desc:'Através da placa, retorna o Número do ATPV-E em PDF.', feats:['Consulta via placa','PDF','Número ATPV-E'] },
-  { id:'atpvreem', cat:'CRV', icon:'📄', nome:'Reemissão ATPV-E', preco:30.00, endpoint:'/reemissao-atpv-e-pdf', campo:'placa',
+  { id:'atpvreem',  icon:'📄', nome:'Reemissão ATPV-E', preco:30.00, endpoint:'/reemissao-atpv-e-pdf', campo:'placa', cat:'CRV',
     desc:'Através do chassi, retorna ATPV. Não pode ter comunicado de venda.', feats:['Consulta via chassi','2ª via ATPV','Documento digital'] },
-
-  { id:'obito', cat:'Outros Serviços', icon:'⚰️', nome:'Consulta Óbito Placa', preco:5.00, endpoint:'/consultar-foto-leilao', campo:'placa',
+  { id:'obito',     icon:'⚰️', nome:'Consulta Óbito Placa', preco:5.00, endpoint:'/consultar-foto-leilao', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulta de óbito vinculada à placa do veículo, com retorno em PDF.', feats:['Consulta por placa','Dados de óbito','PDF automático'] },
-  { id:'leilaosimples', cat:'Outros Serviços', icon:'🔨', nome:'Consulta Leilão Simples', preco:9.99, endpoint:'/consultar-cautelar', campo:'placa',
+  { id:'leilaosimples', icon:'🔨', nome:'Consulta Leilão Simples', preco:9.99, endpoint:'/consultar-cautelar', campo:'placa', cat:'Consulta Veicular',
     desc:'Verificação de informações de leilão do veículo.', feats:['Consulta via placa','Dados de leilão','Histórico completo'] },
-  { id:'frota', cat:'Outros Serviços', icon:'🚚', nome:'Consulta Frota CPF/CNPJ', preco:7.50, endpoint:'/consultar-placa-v2', campo:'placa',
+  { id:'frota',     icon:'🚚', nome:'Consulta Frota CPF/CNPJ', preco:7.50, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulte a frota de veículos vinculada a um CPF ou CNPJ.', feats:['Consulta por CPF ou CNPJ','Relatório de frota em PDF','Resposta imediata'] },
-  { id:'comunicadocompleto', cat:'Outros Serviços', icon:'📋', nome:'Consulta Comunicado de Venda', preco:5.00, endpoint:'/comunicado-venda/inserir', campo:'placa', novo:true,
+  { id:'comunicadocompleto', icon:'📋', nome:'Consulta Comunicado de Venda', preco:5.00, endpoint:'/comunicado-venda/inserir', campo:'placa', novo:true, cat:'CRV',
     desc:'Consulte se existe comunicado de venda.', feats:['Verificação de status','Informações detalhadas','Histórico completo'] },
-  { id:'procuracao', cat:'Outros Serviços', icon:'📃', nome:'Procuração Veicular', preco:0, endpoint:'/consultar-placa-v2', campo:'placa',
+  { id:'procuracao', icon:'📃', nome:'Procuração Veicular', preco:0, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Outros Serviços',
     desc:'Gere procuração veicular em PDF com dados do outorgante, procurador e veículo.', feats:['Preenchimento com CEP','Download imediato em PDF','Sem custo de consulta'] },
-  { id:'debitogratis', cat:'Outros Serviços', icon:'💰', nome:'Consulta Débito', preco:0, endpoint:'/consultar-debito', campo:'placa',
+  { id:'debitogratis', icon:'💰', nome:'Consulta Débito', preco:0, endpoint:'/consultar-debito', campo:'placa', cat:'Outros Serviços',
     desc:'Consulta de débitos veiculares por placa.', feats:['Consulta via placa','Relatório de débitos','PDF automático'] },
-  { id:'consultarapidachassi', cat:'Outros Serviços', icon:'🔍', nome:'Consulta Rápida por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi',
+  { id:'consultarapidachassi', icon:'🔍', nome:'Consulta Rápida por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', cat:'Outros Serviços',
     desc:'Consulta pelo chassi com retorno rápido em PDF.', feats:['PDF imediato','Consulta via chassi','Download direto'] },
 ];
+
 function renderServicos(lista, containerId) {
   const el = document.getElementById(containerId);
   if (!lista.length) { el.innerHTML = '<p style="color:var(--gray);text-align:center;padding:2rem;grid-column:1/-1">Nenhum serviço encontrado.</p>'; return; }
@@ -419,15 +417,8 @@ function renderServicos(lista, containerId) {
           <label>${s.campo === 'chassi' ? 'Chassi' : 'Placa'}</label>
           <input class="placa-input" id="input-${s.id}" placeholder="${s.campo === 'chassi' ? '9BWZZZ377VT004251' : 'ABC1D23'}" maxlength="${s.campo === 'chassi' ? 17 : 8}" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" />
         </div>
-        <div id="provedor-wrap-${s.id}" style="display:none">
-          <label>Fornecedor (admin)</label>
-          <select id="provedor-${s.id}">
-            <option value="">Automático (mais rápido)</option>
-            <option value="portal">Portal Despachantes</option>
-            <option value="apibrasil">ApiBrasil</option>
-            <option value="terceiro">Terceiro Fornecedor</option>
-          </select>
-        </div>      </div>      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
+      </div>
+      <button class="btn-consultar" onclick="consultarServico('${s.id}')">Consultar</button>
       <div class="resultado" id="res-${s.id}">
         <div class="resultado-header">
           <div class="placa-badge" id="rb-${s.id}">—</div>
@@ -447,30 +438,28 @@ function renderServicos(lista, containerId) {
 
 let categoriaAtual = 'Consulta Veicular';
 
-function filtrarCategoria(cat, el) {
+function abrirCategoria(cat, el) {
   categoriaAtual = cat;
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  if (el) el.classList.add('active');
+  showPanel('inicio', el);
   document.getElementById('search-servicos').value = '';
   aplicarFiltroServicos();
-  showPanel('inicio', null);
 }
-  function filtrarCategoria(cat, el) {
+
+function aplicarFiltroServicos(q = '') {
+  let lista = SERVICOS.filter(s => s.cat === categoriaAtual);
+  if (q) lista = lista.filter(s => s.nome.toLowerCase().includes(q.toLowerCase()));
+  renderServicos(lista, 'servicos-lista');
+  const titulo = document.getElementById('servicos-titulo');
+  if (titulo) titulo.textContent = categoriaAtual;
+}
 
 function filtrarServicos(q) {
   aplicarFiltroServicos(q);
 }
 
-function aplicarFiltroServicos(q = '') {
-  let lista = categoriaAtual === 'Todos' ? SERVICOS : SERVICOS.filter(s => s.cat === categoriaAtual);
-  if (q) lista = lista.filter(s => s.nome.toLowerCase().includes(q.toLowerCase()));
-  renderServicos(lista, 'servicos-lista');
-}
-
 async function consultarServico(id) {
   const s = SERVICOS.find(x => x.id === id);
   const valor = document.getElementById(`input-${id}`).value.trim();
-  const provedorPreferido = document.getElementById(`provedor-${id}`)?.value || '';
   if (valor.length < 7) { showToast('⚠️ Valor inválido — mínimo 7 caracteres', 'err'); return; }
 
   if (s.preco > 0) {
@@ -480,11 +469,10 @@ async function consultarServico(id) {
 
   mostrarLoading(`Consultando ${s.nome}...`);
   try {
-    const resultado = await chamarAPI(s.endpoint, { [s.campo]: valor, provedorPreferido });
+    const resultado = await chamarAPI(s.endpoint, { [s.campo]: valor });
     esconderLoading();
 
     if (s.preco > 0) await descontarSaldo(s.preco);
-        if (s.preco > 0) await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa: valor, tipo: s.nome, creditos_usados: 1, valor: s.preco });
 
     salvarHistorico(valor, s.nome, resultado.provedor, resultado.tipo === 'pdf' ? 'ok' : detectarRestricao(resultado.data) ? 'alerta' : 'ok', s.preco);
     atualizarStats(resultado.tipo === 'pdf' ? false : detectarRestricao(resultado.data));
@@ -510,6 +498,9 @@ async function consultarServico(id) {
   }
 }
 
+// ============================================================
+//  PREÇOS CRLV
+// ============================================================
 const PRECOS_CRLV = {
   AC:25, AL:30, AP:7, BA:30, CE:40, GO:10, MA:7, MT:7,
   MS:25, MG:10, PA:7, PR:10, PE:50, PI:12, RJ:15,
@@ -537,6 +528,9 @@ function atualizarSaldoUI(saldo) {
   if (ps) ps.textContent = 'R$ ' + saldo.toFixed(2).replace('.',',');
 }
 
+// ============================================================
+//  API
+// ============================================================
 async function chamarAPI(endpoint, params = {}) {
   const res = await fetch('/api/consulta', {
     method: 'POST',
@@ -552,6 +546,9 @@ async function chamarAPI(endpoint, params = {}) {
   return { tipo: 'json', data: resultado.dados, provedor: resultado.provedor };
 }
 
+// ============================================================
+//  CRLV
+// ============================================================
 const CRLV_MAP = {
   AC:{ep:'/crlv-acre',ag:false}, AL:{ep:'/crlv-agendado-alagoas',ag:true},
   AP:{ep:'/crlv-amapa',ag:false}, BA:{ep:'/crlv-bahia',ag:false},
@@ -603,7 +600,6 @@ async function emitirCRLV() {
     const resultado = await chamarAPI(cfg.ep, body);
     esconderLoading();
     await descontarSaldo(precoCRLV);
-        await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa, tipo: `CRLV ${estadoCRLV}`, creditos_usados: 1, valor: precoCRLV });
     stats.crlv++; salvarStats();
     document.getElementById('stat-crlv').textContent = stats.crlv;
     salvarHistorico(placa, `CRLV ${estadoCRLV}`, resultado.provedor, 'ok', precoCRLV);
@@ -626,8 +622,12 @@ async function emitirCRLV() {
     esconderLoading();
     showToast('❌ ' + (e.message || 'Erro na emissão'), 'err');
   }
-} 
-  async function acaoComunicado(acao) {
+}
+
+// ============================================================
+//  COMUNICADO
+// ============================================================
+async function acaoComunicado(acao) {
   const preco = acao === 'inserir' ? 5.00 : 30.00;
   const ok = await temSaldoSuficiente(preco);
   if (!ok) { showToast(`⚠️ Saldo insuficiente. Custa R$ ${preco.toFixed(2)}`, 'err'); return; }
@@ -647,7 +647,6 @@ async function emitirCRLV() {
     const resultado = await chamarAPI(`/comunicado-venda/${acao}`, body);
     esconderLoading();
     await descontarSaldo(preco);
-        await sb.from('consultas').insert({ user_id: perfilUsuario.id, placa: body.placa, tipo: `Comunicado ${acao}`, creditos_usados: 1, valor: preco });
     salvarHistorico(body.placa, `Comunicado ${acao}`, resultado.provedor, 'ok', preco);
     renderGrid('rcom-grid', resultado.data);
     document.getElementById('rcom-json').textContent = JSON.stringify(resultado.data, null, 2);
@@ -659,6 +658,9 @@ async function emitirCRLV() {
   }
 }
 
+// ============================================================
+//  HELPERS
+// ============================================================
 function detectarRestricao(dados) {
   if (!dados) return false;
   const str = JSON.stringify(dados).toLowerCase();
@@ -706,6 +708,9 @@ function limparResultado(resId, inputId) {
   document.getElementById(inputId).value = '';
 }
 
+// ============================================================
+//  HISTÓRICO E STATS
+// ============================================================
 let historico = JSON.parse(localStorage.getItem('pd_historico') || '[]');
 let stats = JSON.parse(localStorage.getItem('pd_stats') || '{"hoje":0,"ok":0,"crlv":0,"rest":0}');
 const hoje = new Date().toDateString();
@@ -731,33 +736,6 @@ function atualizarStats(temRestricao) {
 
 function salvarStats() { localStorage.setItem('pd_stats', JSON.stringify(stats)); }
 
-function popularFiltroTipos() {
-  const tipos = [...new Set(historico.map(r => r.tipo))];
-  const sel = document.getElementById('filtro-tipo');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Todos</option>' + tipos.map(t => `<option value="${t}">${t}</option>`).join('');
-}
-
-function aplicarFiltrosHistorico() {
-  const placa = (document.getElementById('filtro-placa')?.value || '').toUpperCase();
-  const tipo = document.getElementById('filtro-tipo')?.value || '';
-  const dataIni = document.getElementById('filtro-data-ini')?.value;
-  const dataFim = document.getElementById('filtro-data-fim')?.value;
-
-  let filtrado = historico.filter(r => {
-    if (placa && !r.placa.includes(placa)) return false;
-    if (tipo && r.tipo !== tipo) return false;
-    if (dataIni || dataFim) {
-      const partes = r.data.split(',')[0].split('/');
-      const dataReg = new Date(partes[2], partes[1]-1, partes[0]);
-      if (dataIni && dataReg < new Date(dataIni)) return false;
-      if (dataFim && dataReg > new Date(dataFim + 'T23:59:59')) return false;
-    }
-    return true;
-  });
-  renderHistoricoCompleto(filtrado);
-}
-
 function renderHistoricoCompleto(dados) {
   const tbody = document.getElementById('tbody-historico');
   const vazio = document.getElementById('historico-vazio');
@@ -766,10 +744,10 @@ function renderHistoricoCompleto(dados) {
   tbody.innerHTML = dados.map(r => `
     <tr>
       <td class="td-placa">${r.placa}</td>
-      <td style="font-size:.82rem">${r.tipo}</td>
-      <td style="font-size:.82rem;color:var(--gray)">${r.data}</td>
+      <td style="font-size:.8rem">${r.tipo}</td>
+      <td style="font-size:.8rem;color:var(--gray)">${r.data}</td>
+      <td style="font-weight:700;color:var(--sky)">R$ ${(r.preco||0).toFixed(2)}</td>
       <td><span class="tag ${r.status==='ok'?'tag-ok':'tag-pend'}">${r.status==='ok'?'✓ Regular':'⚠ Alerta'}</span></td>
-      <td><span class="provedor-badge">${r.provedor}</span></td>
     </tr>`).join('');
 }
 
@@ -779,31 +757,10 @@ function filtrarHistorico(q) {
   ));
 }
 
+// ============================================================
+//  UI / PANELS
+// ============================================================
 const titulos = { inicio:'Dashboard', crlv:'Pedidos CRLV-e', comunicado:'Comunicado de Venda', historico:'Histórico de Consultas', creditos:'Recarga de Saldo', perfil:'Minha Conta' };
-
-function toggleSubmenu() {
-  const sub = document.getElementById('submenu-consultas');
-  const arrow = document.getElementById('submenu-arrow');
-  if (sub.style.maxHeight === '0px') {
-    sub.style.maxHeight = '500px';
-    arrow.style.transform = 'rotate(0deg)';
-  } else {
-    sub.style.maxHeight = '0px';
-    arrow.style.transform = 'rotate(-90deg)';
-  }
-}
-
-function toggleGrupo(nome) {
-  const grupo = document.getElementById('grupo-' + nome);
-  const arrow = document.getElementById('arrow-' + nome);
-  if (grupo.style.maxHeight === '0px') {
-    grupo.style.maxHeight = '400px';
-    arrow.style.transform = 'rotate(0deg)';
-  } else {
-    grupo.style.maxHeight = '0px';
-    arrow.style.transform = 'rotate(-90deg)';
-  }
-}
 
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -811,7 +768,7 @@ function showPanel(id, el) {
   document.getElementById('panel-'+id).classList.add('active');
   if (el) el.classList.add('active');
   document.querySelector('.topbar-title').innerHTML = '<span class="menu-ic">☰</span> ' + (titulos[id] || id);
-  if (id === 'historico') { popularFiltroTipos(); renderHistoricoCompleto(historico); }
+  if (id === 'historico') renderHistoricoCompleto(historico);
   if (id === 'perfil' && perfilUsuario) {
     document.getElementById('perfil-nome').value = perfilUsuario.nome || '';
     document.getElementById('perfil-email').value = perfilUsuario.email || '';
@@ -832,6 +789,9 @@ function showToast(msg, type='ok') {
   setTimeout(()=>t.classList.remove('show'), 3500);
 }
 
+// ============================================================
+//  MERCADO PAGO
+// ============================================================
 const PACOTES = [
   { valor: 50,   label: 'R$ 50,00',   destaque: false },
   { valor: 100,  label: 'R$ 100,00',  destaque: false },
@@ -862,15 +822,14 @@ async function iniciarPagamento(valor) {
     const resp = await fetch('/api/pagamento', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-     body: JSON.stringify({
+      body: JSON.stringify({
         valor, descricao: `Recarga Portal Despachante — R$ ${valor},00`,
         email: perfilUsuario.email, user_id: perfilUsuario.id,
-        nome: perfilUsuario.nome || '',
       }),
     });
     const dados = await resp.json();
     if (!resp.ok) throw new Error(dados.erro);
-    window.location.href = dados.init_point || dados.sandbox_init_point;
+    window.location.href = dados.sandbox_init_point || dados.init_point;
   } catch (e) {
     document.getElementById('mp-loading').style.display = 'none';
     document.getElementById('pacotes-grid').style.opacity = '1';
@@ -914,6 +873,9 @@ async function verificarRetornoPagamento() {
   }
 }
 
+// ============================================================
+//  SUPABASE
+// ============================================================
 const { createClient } = supabase;
 const sb = createClient(
   'https://ofutxldgzocvfjcjemlk.supabase.co',
@@ -925,11 +887,6 @@ let perfilUsuario = null;
 async function carregarPerfil() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = 'login.html'; return; }
-  if (!session.user.email_confirmed_at) {
-    await sb.auth.signOut();
-    window.location.href = 'login.html?erro=confirme-email';
-    return;
-  }
   const { data: perfil } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
   perfilUsuario = perfil;
   if (perfil) {
@@ -939,17 +896,17 @@ async function carregarPerfil() {
     document.getElementById('avatar-initials').textContent = iniciais;
     atualizarSaldoUI(perfil.creditos || 0);
     carregarRecargas();
-
-    if (perfil.tipo === 'admin') {
-      document.querySelectorAll('[id^="provedor-wrap-"]').forEach(el => el.style.display = 'block');
-    }
   }
 }
+
 async function fazerLogout() {
   await sb.auth.signOut();
   window.location.href = 'login.html';
 }
 
+// ============================================================
+//  INIT
+// ============================================================
 (function init() {
   buildEstadosGrid();
   buildPacotes();

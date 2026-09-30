@@ -20,7 +20,7 @@
     .nav-group-label { font-size:10px; font-weight:bold; text-transform:uppercase; color:#000080; padding:8px 4px 3px; }
     .nav-item { display:flex; align-items:center; gap:.5rem; padding:6px 10px; cursor:pointer; color:#000; font-size:12px; margin-bottom:3px; background:#C0C0C0; border:1px outset #C0C0C0; text-decoration:none; }
     .nav-item:hover { background:#dcdcdc; }
-    .nav-item.active { background:#000080; color:#fff; border:1px inset #C0C0C0; }
+    .nav-item.active { background:#1084d0; color:#fff; border:1px inset #C0C0C0; font-weight:bold; }
     .nav-item .icon { font-size:.95rem; width:16px; text-align:center; }
 
     /* MAIN */
@@ -167,11 +167,11 @@
 
     <div class="nav-group-label">Consultas & Pedidos</div>
     <a class="nav-item active" onclick="abrirCategoria('Consulta Veicular',this)"><span class="icon">🔍</span> Consulta Veicular</a>
-    <a class="nav-item" onclick="abrirCategoria('CRV',this)"><span class="icon">📄</span> CRV</a>
-    <a class="nav-item" onclick="abrirCategoria('Outros Serviços',this)"><span class="icon">✨</span> Outros Serviços</a>
-    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📝</span> Pedidos CRLV-e</a>
-    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicado de Venda</a>
-    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico de Consultas</a>
+    <a class="nav-item" onclick="showPanel('crlv',this)"><span class="icon">📄</span> CRLV-e</a>
+    <a class="nav-item" onclick="abrirCategoria('ATPV-e',this)"><span class="icon">📃</span> ATPV-e</a>
+    <a class="nav-item" onclick="abrirCategoria('CRV',this)"><span class="icon">🔐</span> CRV</a>
+    <a class="nav-item" onclick="showPanel('comunicado',this)"><span class="icon">📝</span> Comunicação de Venda</a>
+    <a class="nav-item" onclick="showPanel('historico',this)"><span class="icon">📋</span> Histórico</a>
 
     <div class="nav-group-label">Financeiro</div>
     <a class="nav-item" onclick="showPanel('creditos',this)"><span class="icon">💳</span> Recarga de Saldo</a>
@@ -246,7 +246,7 @@
     <div class="panel" id="panel-comunicado">
       <div class="service-card" style="max-width:640px">
         <div class="service-head">
-          <div class="service-title-wrap"><div class="service-icon">📝</div><span class="service-title">Comunicado de Venda</span></div>
+          <div class="service-title-wrap"><div class="service-icon">📝</div><span class="service-title">Comunicação de Venda</span></div>
           <div class="service-price">R$ 30,00</div>
         </div>
         <p class="service-desc">Registre a transferência de responsabilidade do veículo junto ao Detran.</p>
@@ -273,7 +273,7 @@
     <div class="panel" id="panel-historico">
       <div class="table-card" style="margin-top:0">
         <div class="table-header">
-          <h3>Histórico de Consultas</h3>
+          <h3>Histórico Geral</h3>
           <input class="table-search" placeholder="Buscar placa..." oninput="filtrarHistorico(this.value)" />
         </div>
         <table><thead><tr><th>Placa</th><th>Tipo</th><th>Data/Hora</th><th>Valor</th><th>Status</th></tr></thead>
@@ -362,9 +362,9 @@ const SERVICOS = [
     desc:'Consulta de CRV específica do estado do Piauí.', feats:['Consulta via placa','Documento válido','PDF automático'] },
   { id:'crvvalid',  icon:'✅', nome:'Verifica Autenticidade CRV', preco:0, endpoint:'/validacao-crv', campo:'placa', cat:'CRV',
     desc:'Verifique se o CRV é válido gratuitamente.', feats:['Validação CRV','Verificação gratuita','Confirmação de autenticidade'] },
-  { id:'atpvnum',   icon:'📄', nome:'Número ATPV-E', preco:99.90, endpoint:'/numero-atpv-e', campo:'placa', cat:'CRV',
+  { id:'atpvnum',   icon:'📄', nome:'Número ATPV-E', preco:99.90, endpoint:'/numero-atpv-e', campo:'placa', cat:'ATPV-e',
     desc:'Através da placa, retorna o Número do ATPV-E em PDF.', feats:['Consulta via placa','PDF','Número ATPV-E'] },
-  { id:'atpvreem',  icon:'📄', nome:'Reemissão ATPV-E', preco:30.00, endpoint:'/reemissao-atpv-e-pdf', campo:'placa', cat:'CRV',
+  { id:'atpvreem',  icon:'📄', nome:'Reemissão ATPV-E', preco:30.00, endpoint:'/reemissao-atpv-e-pdf', campo:'placa', cat:'ATPV-e',
     desc:'Através do chassi, retorna ATPV. Não pode ter comunicado de venda.', feats:['Consulta via chassi','2ª via ATPV','Documento digital'] },
   { id:'obito',     icon:'⚰️', nome:'Consulta Óbito Placa', preco:5.00, endpoint:'/consultar-foto-leilao', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulta de óbito vinculada à placa do veículo, com retorno em PDF.', feats:['Consulta por placa','Dados de óbito','PDF automático'] },
@@ -372,13 +372,13 @@ const SERVICOS = [
     desc:'Verificação de informações de leilão do veículo.', feats:['Consulta via placa','Dados de leilão','Histórico completo'] },
   { id:'frota',     icon:'🚚', nome:'Consulta Frota CPF/CNPJ', preco:7.50, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulte a frota de veículos vinculada a um CPF ou CNPJ.', feats:['Consulta por CPF ou CNPJ','Relatório de frota em PDF','Resposta imediata'] },
-  { id:'comunicadocompleto', icon:'📋', nome:'Consulta Comunicado de Venda', preco:5.00, endpoint:'/comunicado-venda/inserir', campo:'placa', novo:true, cat:'CRV',
+  { id:'comunicadocompleto', icon:'📋', nome:'Consulta Comunicado de Venda', preco:5.00, endpoint:'/comunicado-venda/inserir', campo:'placa', novo:true, cat:'Consulta Veicular',
     desc:'Consulte se existe comunicado de venda.', feats:['Verificação de status','Informações detalhadas','Histórico completo'] },
-  { id:'procuracao', icon:'📃', nome:'Procuração Veicular', preco:0, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Outros Serviços',
+  { id:'procuracao', icon:'📃', nome:'Procuração Veicular', preco:0, endpoint:'/consultar-placa-v2', campo:'placa', cat:'Consulta Veicular',
     desc:'Gere procuração veicular em PDF com dados do outorgante, procurador e veículo.', feats:['Preenchimento com CEP','Download imediato em PDF','Sem custo de consulta'] },
-  { id:'debitogratis', icon:'💰', nome:'Consulta Débito', preco:0, endpoint:'/consultar-debito', campo:'placa', cat:'Outros Serviços',
+  { id:'debitogratis', icon:'💰', nome:'Consulta Débito', preco:0, endpoint:'/consultar-debito', campo:'placa', cat:'Consulta Veicular',
     desc:'Consulta de débitos veiculares por placa.', feats:['Consulta via placa','Relatório de débitos','PDF automático'] },
-  { id:'consultarapidachassi', icon:'🔍', nome:'Consulta Rápida por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', cat:'Outros Serviços',
+  { id:'consultarapidachassi', icon:'🔍', nome:'Consulta Rápida por Chassi', preco:5.00, endpoint:'/consultar-chassi', campo:'chassi', cat:'Consulta Veicular',
     desc:'Consulta pelo chassi com retorno rápido em PDF.', feats:['PDF imediato','Consulta via chassi','Download direto'] },
 ];
 
@@ -744,7 +744,7 @@ function filtrarHistorico(q) {
 // ============================================================
 //  UI / PANELS
 // ============================================================
-const titulos = { inicio:'Dashboard', crlv:'Pedidos CRLV-e', comunicado:'Comunicado de Venda', historico:'Histórico de Consultas', creditos:'Recarga de Saldo', perfil:'Minha Conta' };
+const titulos = { inicio:'Dashboard', crlv:'CRLV-e', comunicado:'Comunicação de Venda', historico:'Histórico', creditos:'Recarga de Saldo', perfil:'Minha Conta' };
 
 function showPanel(id, el) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
@@ -846,6 +846,7 @@ async function verificarRetornoPagamento() {
       const novoSaldo = (perfilAtual?.creditos || 0) + parseFloat(valor);
       await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', user_id);
       atualizarSaldoUI(novoSaldo);
+      salvarHistorico('—', 'Recarga de Saldo', 'Mercado Pago', 'ok', -parseFloat(valor));
     }
     window.history.replaceState({}, '', '/dashboard.html');
   } else if (pagamento === 'falhou') {

@@ -117,7 +117,7 @@
     .vazio { text-align:center; padding:20px; color:#555; font-size:11px; }
 
     /* ESTADOS CRLV */
-    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(75px,1fr)); gap:5px; margin-bottom:8px; }
+    .estados-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(105px,1fr)); gap:8px; margin-bottom:8px; }
     .estado-btn { padding:5px 3px; border:2px outset #C0C0C0; background:#C0C0C0; cursor:pointer; font-family:'Tahoma',sans-serif; text-align:center; }
     .estado-btn:hover { background:#d4d4d4; }
     .estado-btn.sel { border:2px inset #C0C0C0; background:#000080; }
@@ -216,17 +216,17 @@
 
     <!-- CRLV -->
     <div class="panel" id="panel-crlv">
-      <div class="service-card" style="max-width:640px">
+      <div class="service-card">
         <div class="service-head">
           <div class="service-title-wrap"><div class="service-icon">📄</div><span class="service-title">Emitir CRLV-e Digital</span></div>
         </div>
         <p class="service-desc">Selecione o estado — preços variam conforme a tabela oficial. Estados com 🕐 são agendados.</p>
         <div class="estados-grid" id="estados-grid"></div>
-        <div class="service-inputs">
+        <div class="service-inputs" style="max-width:520px">
           <div><label>Placa</label><input class="placa-input" id="crlv-placa" placeholder="ABC1D23" maxlength="8" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')" /></div>
           <div><label>Renavam (se exigido)</label><input type="text" id="crlv-renavam" placeholder="00000000000" maxlength="11" /></div>
         </div>
-        <button class="btn-consultar" onclick="emitirCRLV()">📄 Emitir CRLV</button>
+        <div style="max-width:520px"><button class="btn-consultar" onclick="emitirCRLV()">📄 Emitir CRLV</button></div>
         <div class="resultado" id="res-crlv">
           <div class="resultado-header">
             <div class="placa-badge" id="rc-placa">—</div>

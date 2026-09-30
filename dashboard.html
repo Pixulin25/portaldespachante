@@ -187,16 +187,14 @@
     <div class="topbar-title"><span class="menu-ic">☰</span> Dashboard</div>
     <div class="topbar-right">
       <div class="bell" onclick="showToast('Sem novas notificações','ok')">🔔</div>
-      <div class="topbar-user">
+            <div class="topbar-user" style="display:flex;align-items:center;gap:.7rem">
         <div class="avatar-top" id="avatar-initials">U</div>
-        <div class="topbar-user-info">
+        <div class="topbar-user-info" style="text-align:right;line-height:1.35">
           <div class="un" id="user-name">Carregando...</div>
           <div class="us" id="user-creditos">Saldo: R$ 0,00</div>
         </div>
-        <button onclick="fazerLogout()" title="Sair" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:1rem;padding:4px;margin-left:.3rem;">⏻</button>
-      </div>
-    </div>
-  </header>
+        <button onclick="fazerLogout()" title="Sair" style="background:#C0C0C0;border:2px outset #C0C0C0;color:#CC0000;font-weight:bold;cursor:pointer;font-size:.8rem;padding:5px 12px;">SAIR ⏻</button>
+      </div>  </header>
 
   <div class="content">
 

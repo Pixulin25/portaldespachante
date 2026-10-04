@@ -864,6 +864,14 @@ async function verificarRetornoPagamento() {
       await sb.from('profiles').update({ creditos: novoSaldo }).eq('id', user_id);
       atualizarSaldoUI(novoSaldo);
       salvarHistorico('—', 'Recarga de Saldo', 'Mercado Pago', 'ok', -parseFloat(valor));
+      if (typeof gtag === 'function') {
+        gtag('event', 'conversion', {
+          'send_to': 'AW-18485606738/oPIrCJKw5pAdENLyz-5E',
+          'value': parseFloat(valor),
+          'currency': 'BRL',
+          'transaction_id': user_id + '-' + Date.now()
+        });
+      }
     }
     window.history.replaceState({}, '', '/dashboard.html');
   } else if (pagamento === 'falhou') {

@@ -314,6 +314,13 @@
         showToast('❌ ' + error.message, 'err');
       } else {
         showToast('🎉 Conta criada! Verifique seu e-mail.', 'ok');
+        if (typeof gtag === 'function') {
+          gtag('event', 'conversion', {
+            'send_to': 'AW-18485606738/7s8bCLOb5ZAdENLyz-5E',
+            'value': 1.0,
+            'currency': 'BRL'
+          });
+        }
         setTimeout(() => switchTab('login'), 2000);
       }
     }

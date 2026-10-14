@@ -810,7 +810,6 @@ function showPanel(id, el) {
   document.getElementById('panel-'+id).classList.add('active');
   if (!el) el = document.querySelector('.nav-item[data-panel="'+id+'"]');
   if (el) el.classList.add('active');
-  document.querySelector('.topbar-title').innerHTML = '<span class="menu-ic">☰</span><span class="tt">' + (titulos[id] || id) + '</span>';
   fecharMenu();
   window.scrollTo(0, 0);
   if (id === 'historico') renderHistoricoCompleto(historico);
